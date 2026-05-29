@@ -4,6 +4,7 @@ const socket = io();
 const screens = {
     login: document.getElementById('loginScreen'),
     waiting: document.getElementById('waitingScreen'),
+    spectator: document.getElementById('spectatorScreen'),
     game: document.getElementById('gameScreen'),
     result: document.getElementById('resultScreen')
 };
@@ -12,6 +13,8 @@ const screens = {
 const joinForm = document.getElementById('joinForm');
 const nameInput = document.getElementById('nameInput');
 const loginError = document.getElementById('loginError');
+const spectatorBtn = document.getElementById('spectatorBtn');
+const leaveSpectatorBtn = document.getElementById('leaveSpectatorBtn');
 
 // Sala de espera
 const participantCount = document.getElementById('participantCount');
@@ -33,7 +36,9 @@ const toast = document.getElementById('toast');
 let toastTimeout;
 
 // Estado global local
+let myId = null;
 let soyParticipante = false;
+let isSpectator = false;
 
 // Funciones de UI
 const showScreen = (screenName) => {
@@ -70,8 +75,21 @@ joinForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const name = nameInput.value.trim();
     if (name) {
+        isSpectator = false;
         socket.emit('unirse', name);
     }
+});
+
+spectatorBtn.addEventListener('click', () => {
+    isSpectator = true;
+    soyParticipante = false;
+    loginError.classList.add('hidden');
+    showScreen('waiting');
+});
+
+leaveSpectatorBtn.addEventListener('click', () => {
+    isSpectator = false;
+    showScreen('login');
 });
 
 gameButton.addEventListener('click', () => {
@@ -83,17 +101,28 @@ nextRoundBtn.addEventListener('click', () => {
 });
 
 leaveBtn.addEventListener('click', () => {
-    socket.emit('salir');
+    if (isSpectator) {
+        isSpectator = false;
+        showScreen('login');
+    } else {
+        socket.emit('salir');
+    }
 });
 
 leaveWaitingBtn.addEventListener('click', () => {
-    socket.emit('salir');
+    if (isSpectator) {
+        isSpectator = false;
+        showScreen('login');
+    } else {
+        socket.emit('salir');
+    }
 });
 
 // Eventos de Socket.IO
 socket.on('error', (msg) => {
     loginError.textContent = msg;
     loginError.classList.remove('hidden');
+    isSpectator = false;
 });
 
 socket.on('rondaLlena', (msg) => {
@@ -108,10 +137,10 @@ socket.on('actualizarParticipantes', ({ participantes, maxParticipantes }) => {
         showScreen('waiting');
     }
 
-    // Si alguien salió y quedamos menos de 3, volver a la sala de espera (si somos participantes)
-    if (participantes.length < maxParticipantes && soyParticipante && !screens.waiting.classList.contains('active')) {
+    // Si alguien salió y quedamos menos de 3, volver a la sala de espera
+    if (participantes.length < maxParticipantes && (soyParticipante || isSpectator) && !screens.waiting.classList.contains('active')) {
         showScreen('waiting');
-        showToast("Un jugador ha salido. Esperando...");
+        if (soyParticipante) showToast("Un jugador ha salido. Esperando...");
     }
 
     // Actualizar UI
@@ -127,16 +156,22 @@ socket.on('actualizarParticipantes', ({ participantes, maxParticipantes }) => {
 });
 
 socket.on('rondaIniciada', () => {
-    // Mostrar botón grande si el usuario está en la sala de espera
-    if (screens.waiting.classList.contains('active')) {
+    if (soyParticipante) {
         showScreen('game');
         gameButton.disabled = false;
+    } else if (isSpectator) {
+        showScreen('spectator');
     }
 });
 
 socket.on('juegoTerminado', ({ ganador, timestamp, ruletaImg }) => {
     winnerName.textContent = ganador;
     winnerTime.textContent = formatTime(timestamp);
+    
+    // Animación del ganador
+    winnerName.classList.remove('winner-animate');
+    void winnerName.offsetWidth; // trigger reflow
+    winnerName.classList.add('winner-animate');
     
     if (ruletaImg) {
         ruletaImgElement.src = ruletaImg;
@@ -170,6 +205,8 @@ socket.on('reiniciarRonda', () => {
     if (soyParticipante) {
         gameButton.disabled = false;
         showScreen('game');
+    } else if (isSpectator) {
+        showScreen('waiting');
     }
 });
 
@@ -191,7 +228,9 @@ socket.on('usuarioSalio', () => {
     gameButton.disabled = true;
     
     // Volver a inicio
-    showScreen('login');
+    if (!isSpectator) {
+        showScreen('login');
+    }
 });
 
 // Restaurar estado si se recarga la página

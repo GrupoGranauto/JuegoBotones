@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Juego en Tiempo Real</title>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
     <main class="container">
@@ -18,9 +18,21 @@
             <p>Ingresa tu nombre para jugar</p>
             <form id="joinForm">
                 <input type="text" id="nameInput" placeholder="Tu nombre" autocomplete="off" required maxlength="15">
-                <button type="submit" class="btn btn-primary">Unirse</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Unirse</button>
             </form>
+            <button id="spectatorBtn" class="btn btn-secondary mt-2" style="width: 100%; border-style: dashed;">Entrar como Espectador</button>
             <div id="loginError" class="error-msg hidden"></div>
+        </section>
+
+        <!-- Pantalla del Espectador -->
+        <section id="spectatorScreen" class="screen">
+            <h2>👀 Modo Espectador</h2>
+            <div class="spectator-loader mt-2">
+                <div class="pulse-ring"></div>
+            </div>
+            <p class="mt-2" style="font-size: 1.2rem; font-weight: 600;">Partida en progreso...</p>
+            <p style="color: var(--secondary-color);">Esperando al más rápido</p>
+            <button id="leaveSpectatorBtn" class="btn btn-secondary mt-2" style="width: 100%;">Salir del modo espectador</button>
         </section>
 
         <!-- Pantalla de Espera -->
@@ -61,6 +73,6 @@
     </main>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=7"></script>
 </body>
 </html>
