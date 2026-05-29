@@ -1,14 +1,16 @@
 :root {
-    --bg-color: #0f172a;
-    --text-color: #f8fafc;
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
-    --accent-color: #10b981;
-    --accent-hover: #059669;
-    --card-bg: #1e293b;
+    --bg-color: #1C1C19;
+    --text-color: #FFFFFF;
+    --primary-color: #493F91;
+    --primary-hover: #5A4EAF;
+    --secondary-color: #6F6F6A;
+    --secondary-hover: #83837E;
+    --accent-color: #BFC760;
+    --accent-hover: #D4DC75;
+    --card-bg: #262623;
     --error-color: #ef4444;
-    --btn-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
-    --btn-huge-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.6);
+    --btn-shadow: 0 8px 24px rgba(73, 63, 145, 0.4);
+    --btn-huge-shadow: 0 15px 40px rgba(191, 199, 96, 0.3);
 }
 
 * {
@@ -18,20 +20,20 @@
 }
 
 body {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Maven Pro', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow: hidden; /* Evitar scroll en mobile */
+    overflow: hidden;
     -webkit-font-smoothing: antialiased;
 }
 
 .container {
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     padding: 2rem;
     display: flex;
     flex-direction: column;
@@ -39,6 +41,19 @@ body {
     justify-content: center;
     position: relative;
     height: 100vh;
+}
+
+.app-logo {
+    width: 180px;
+    max-width: 80%;
+    margin-bottom: 2rem;
+    object-fit: contain;
+    animation: fadeInDown 0.6s ease-out;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* Pantallas */
@@ -62,16 +77,15 @@ body {
 
 /* Tipografía */
 h1, h2 {
-    font-weight: 800;
+    font-weight: 700;
     margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, #60a5fa, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text-color);
+    letter-spacing: -0.5px;
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-p { color: #94a3b8; margin-bottom: 1.5rem; font-size: 1.1rem; }
+h1 { font-size: 2.2rem; }
+h2 { font-size: 1.8rem; }
+p { color: var(--secondary-color); margin-bottom: 1.5rem; font-size: 1.1rem; }
 
 /* Formularios */
 form {
@@ -85,18 +99,19 @@ input {
     width: 100%;
     padding: 1rem;
     border-radius: 12px;
-    border: 2px solid #334155;
-    background: var(--card-bg);
+    border: 1px solid var(--secondary-color);
+    background: transparent;
     color: var(--text-color);
     font-size: 1.1rem;
     font-family: inherit;
     outline: none;
     transition: all 0.3s ease;
+    text-align: center;
 }
 
 input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(191, 199, 96, 0.15);
 }
 
 /* Botones */
@@ -128,41 +143,45 @@ input:focus {
     background-color: var(--primary-color);
     color: white;
     padding: 1rem;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     box-shadow: var(--btn-shadow);
 }
 
 .btn-primary:hover:not(:disabled) {
     background-color: var(--primary-hover);
-    box-shadow: 0 15px 30px -5px rgba(59, 130, 246, 0.6);
+    box-shadow: 0 12px 28px rgba(73, 63, 145, 0.5);
 }
 
 .btn-secondary {
-    background-color: #334155;
-    color: white;
+    background-color: transparent;
+    border: 1px solid var(--secondary-color);
+    color: var(--text-color);
     padding: 0.8rem 1.5rem;
     font-size: 1.1rem;
 }
 
 .btn-secondary:hover {
-    background-color: #475569;
+    background-color: var(--secondary-color);
+    color: #fff;
 }
 
 .btn-huge {
-    background: linear-gradient(135deg, var(--accent-color), #34d399);
-    color: white;
-    width: 250px;
-    height: 250px;
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+    width: 240px;
+    height: 240px;
     border-radius: 50%;
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 800;
     box-shadow: var(--btn-huge-shadow);
-    letter-spacing: 2px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 .btn-huge:hover:not(:disabled) {
     transform: scale(1.05);
-    box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.8);
+    background-color: var(--accent-hover);
+    box-shadow: 0 20px 45px rgba(191, 199, 96, 0.5);
 }
 
 .btn-huge:active:not(:disabled) {
@@ -176,18 +195,19 @@ input:focus {
     border-radius: 16px;
     width: 100%;
     margin-bottom: 1.5rem;
-    border: 1px solid #334155;
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
 .participants-info p {
     margin-bottom: 0.5rem;
     font-size: 1rem;
+    color: var(--secondary-color);
 }
 
 #participantCount {
-    font-size: 3rem;
-    font-weight: 800;
-    color: var(--text-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
 }
 
 .participants-list {
@@ -201,9 +221,9 @@ input:focus {
 .participants-list li {
     background: var(--card-bg);
     padding: 1rem;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: 500;
     border-left: 4px solid var(--primary-color);
 }
 
@@ -213,7 +233,7 @@ input:focus {
     padding: 2rem;
     border-radius: 20px;
     width: 100%;
-    border: 1px solid #334155;
+    border: 1px solid rgba(255,255,255,0.05);
     margin-bottom: 2rem;
 }
 
@@ -225,11 +245,11 @@ input:focus {
 
 .time-display {
     font-family: monospace;
-    font-size: 1.2rem;
-    background: rgba(0,0,0,0.3);
+    font-size: 1.1rem;
+    background: var(--bg-color);
     padding: 0.8rem;
     border-radius: 8px;
-    color: #94a3b8;
+    color: var(--secondary-color);
 }
 
 .mt-2 {
@@ -252,7 +272,7 @@ input:focus {
     color: var(--error-color);
     margin-top: 1rem;
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .hidden {
@@ -264,12 +284,12 @@ input:focus {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--error-color);
+    background: var(--primary-color);
     color: white;
     padding: 1rem 2rem;
     border-radius: 50px;
     font-weight: 600;
-    box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.5);
+    box-shadow: var(--btn-shadow);
     z-index: 1000;
     animation: toastSlideDown 0.3s ease-out;
 }
