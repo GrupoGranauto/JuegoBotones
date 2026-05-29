@@ -26,7 +26,7 @@ const winnerTime = document.getElementById('winnerTime');
 const nextRoundBtn = document.getElementById('nextRoundBtn');
 const leaveBtn = document.getElementById('leaveBtn');
 const leaveWaitingBtn = document.getElementById('leaveWaitingBtn');
-const ruletaBg = document.getElementById('ruletaBg');
+const ruletaImgElement = document.getElementById('ruletaImgElement');
 
 // Toast
 const toast = document.getElementById('toast');
@@ -139,11 +139,12 @@ socket.on('juegoTerminado', ({ ganador, timestamp, ruletaImg }) => {
     winnerTime.textContent = formatTime(timestamp);
     
     if (ruletaImg) {
-        ruletaBg.style.backgroundImage = `url('${ruletaImg}')`;
-        ruletaBg.classList.remove('hidden');
+        ruletaImgElement.src = ruletaImg;
+        ruletaImgElement.classList.remove('hidden', 'hide-funny');
+        ruletaImgElement.classList.add('show-funny');
     } else {
-        ruletaBg.classList.add('hidden');
-        ruletaBg.style.backgroundImage = 'none';
+        ruletaImgElement.classList.add('hidden');
+        ruletaImgElement.classList.remove('show-funny', 'hide-funny');
     }
     
     // Deshabilitar botón para que no sigan presionando
@@ -154,9 +155,16 @@ socket.on('juegoTerminado', ({ ganador, timestamp, ruletaImg }) => {
 });
 
 socket.on('reiniciarRonda', () => {
-    // Limpiar ruleta
-    ruletaBg.classList.add('hidden');
-    ruletaBg.style.backgroundImage = 'none';
+    // Limpiar ruleta animada
+    if (ruletaImgElement.classList.contains('show-funny')) {
+        ruletaImgElement.classList.remove('show-funny');
+        ruletaImgElement.classList.add('hide-funny');
+        setTimeout(() => {
+            ruletaImgElement.classList.add('hidden');
+        }, 600);
+    } else {
+        ruletaImgElement.classList.add('hidden');
+    }
 
     // Volver a la pantalla de juego solo si somos participantes de la ronda
     if (soyParticipante) {
@@ -166,9 +174,16 @@ socket.on('reiniciarRonda', () => {
 });
 
 socket.on('usuarioSalio', () => {
-    // Limpiar ruleta
-    ruletaBg.classList.add('hidden');
-    ruletaBg.style.backgroundImage = 'none';
+    // Limpiar ruleta animada
+    if (ruletaImgElement.classList.contains('show-funny')) {
+        ruletaImgElement.classList.remove('show-funny');
+        ruletaImgElement.classList.add('hide-funny');
+        setTimeout(() => {
+            ruletaImgElement.classList.add('hidden');
+        }, 600);
+    } else {
+        ruletaImgElement.classList.add('hidden');
+    }
 
     // Limpiar estado local
     nameInput.value = '';

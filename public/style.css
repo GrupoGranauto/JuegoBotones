@@ -233,23 +233,41 @@ input:focus {
     z-index: 1;
 }
 
-.ruleta-bg {
+.ruleta-img {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    opacity: 0.9;
-    filter: none;
-    z-index: -1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 90%;
+    max-height: 50vh;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    z-index: 100;
     pointer-events: none;
-    transition: opacity 1s ease;
+    border: 4px solid var(--accent-color);
+}
+
+.ruleta-img.show-funny {
+    animation: popInFunny 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.ruleta-img.hide-funny {
+    animation: popOutFunny 0.6s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+
+@keyframes popInFunny {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-180deg); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.1) rotate(10deg); }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(-5deg); opacity: 1; }
+}
+
+@keyframes popOutFunny {
+    0% { transform: translate(-50%, -50%) scale(1) rotate(-5deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0) rotate(180deg); opacity: 0; }
 }
 
 .winner-card {
-    background: rgba(38, 38, 35, 0.85); /* var(--card-bg) semi-transparente */
+    background: var(--card-bg);
     padding: 2rem;
     border-radius: 20px;
     width: 100%;
