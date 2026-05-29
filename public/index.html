@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Juego en Tiempo Real</title>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
     <main class="container">
@@ -43,6 +43,7 @@
 
         <!-- Pantalla de Resultados -->
         <section id="resultScreen" class="screen">
+            <div id="ruletaBg" class="ruleta-bg hidden"></div>
             <div class="winner-card">
                 <h2>🏆 Ganador</h2>
                 <h3 id="winnerName">-</h3>
@@ -60,6 +61,6 @@
     </main>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="app.js?v=4"></script>
+    <script src="app.js?v=5"></script>
 </body>
 </html>

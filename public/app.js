@@ -26,6 +26,7 @@ const winnerTime = document.getElementById('winnerTime');
 const nextRoundBtn = document.getElementById('nextRoundBtn');
 const leaveBtn = document.getElementById('leaveBtn');
 const leaveWaitingBtn = document.getElementById('leaveWaitingBtn');
+const ruletaBg = document.getElementById('ruletaBg');
 
 // Toast
 const toast = document.getElementById('toast');
@@ -133,9 +134,17 @@ socket.on('rondaIniciada', () => {
     }
 });
 
-socket.on('juegoTerminado', ({ ganador, timestamp }) => {
+socket.on('juegoTerminado', ({ ganador, timestamp, ruletaImg }) => {
     winnerName.textContent = ganador;
     winnerTime.textContent = formatTime(timestamp);
+    
+    if (ruletaImg) {
+        ruletaBg.style.backgroundImage = `url('${ruletaImg}')`;
+        ruletaBg.classList.remove('hidden');
+    } else {
+        ruletaBg.classList.add('hidden');
+        ruletaBg.style.backgroundImage = 'none';
+    }
     
     // Deshabilitar botón para que no sigan presionando
     gameButton.disabled = true;
@@ -145,6 +154,10 @@ socket.on('juegoTerminado', ({ ganador, timestamp }) => {
 });
 
 socket.on('reiniciarRonda', () => {
+    // Limpiar ruleta
+    ruletaBg.classList.add('hidden');
+    ruletaBg.style.backgroundImage = 'none';
+
     // Volver a la pantalla de juego solo si somos participantes de la ronda
     if (soyParticipante) {
         gameButton.disabled = false;
@@ -153,6 +166,10 @@ socket.on('reiniciarRonda', () => {
 });
 
 socket.on('usuarioSalio', () => {
+    // Limpiar ruleta
+    ruletaBg.classList.add('hidden');
+    ruletaBg.style.backgroundImage = 'none';
+
     // Limpiar estado local
     nameInput.value = '';
     loginError.classList.add('hidden');

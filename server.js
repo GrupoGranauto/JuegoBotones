@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -20,6 +21,20 @@ let estadoJuego = {
     ganador: null,
     timestamp: null
 };
+
+// Cargar imágenes de la ruleta
+let ruletaImages = [];
+try {
+    const ruletaPath = path.join(__dirname, 'public', 'Ruleta');
+    if (fs.existsSync(ruletaPath)) {
+        ruletaImages = fs.readdirSync(ruletaPath).filter(file => {
+            return /\.(jpg|jpeg|png|gif|webp)$/i.test(file);
+        });
+        console.log(`Cargadas ${ruletaImages.length} imágenes para la ruleta.`);
+    }
+} catch (error) {
+    console.error("Error cargando imágenes de la ruleta:", error);
+}
 
 // Limpiar la lista de desconectados
 const eliminarParticipante = (id) => {
@@ -89,10 +104,18 @@ io.on('connection', (socket) => {
 
             console.log(`Ganador: ${estadoJuego.ganador} a las ${estadoJuego.timestamp.toISOString()}`);
 
+            // 50% de probabilidad de ruleta
+            let imagenRuleta = null;
+            if (ruletaImages.length > 0 && Math.random() < 0.5) {
+                const randomIdx = Math.floor(Math.random() * ruletaImages.length);
+                imagenRuleta = `/Ruleta/${ruletaImages[randomIdx]}`;
+            }
+
             // Emitir al ganador a todos los participantes
             io.emit('juegoTerminado', {
                 ganador: estadoJuego.ganador,
-                timestamp: estadoJuego.timestamp.toISOString()
+                timestamp: estadoJuego.timestamp.toISOString(),
+                ruletaImg: imagenRuleta
             });
         }
     });
