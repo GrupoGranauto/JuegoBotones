@@ -30,6 +30,9 @@ const leaveBtn = document.getElementById('leaveBtn');
 const toast = document.getElementById('toast');
 let toastTimeout;
 
+// Estado global local
+let soyParticipante = false;
+
 // Funciones de UI
 const showScreen = (screenName) => {
     Object.values(screens).forEach(s => s.classList.remove('active'));
@@ -92,7 +95,7 @@ socket.on('rondaLlena', (msg) => {
 });
 
 socket.on('actualizarParticipantes', ({ participantes, maxParticipantes }) => {
-    const soyParticipante = participantes.some(p => p.id === socket.id);
+    soyParticipante = participantes.some(p => p.id === socket.id);
     
     // Si estábamos en login, pasamos a espera (si nos unimos exitosamente)
     if (screens.login.classList.contains('active') && soyParticipante) {
@@ -137,9 +140,11 @@ socket.on('juegoTerminado', ({ ganador, timestamp }) => {
 });
 
 socket.on('reiniciarRonda', () => {
-    // Volver a la pantalla de juego
-    gameButton.disabled = false;
-    showScreen('game');
+    // Volver a la pantalla de juego solo si somos participantes de la ronda
+    if (soyParticipante) {
+        gameButton.disabled = false;
+        showScreen('game');
+    }
 });
 
 socket.on('usuarioSalio', () => {
