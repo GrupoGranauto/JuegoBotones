@@ -23,7 +23,8 @@ const gameButton = document.getElementById('gameButton');
 // Resultados
 const winnerName = document.getElementById('winnerName');
 const winnerTime = document.getElementById('winnerTime');
-const restartBtn = document.getElementById('restartBtn');
+const nextRoundBtn = document.getElementById('nextRoundBtn');
+const leaveBtn = document.getElementById('leaveBtn');
 
 // Toast
 const toast = document.getElementById('toast');
@@ -72,8 +73,12 @@ gameButton.addEventListener('click', () => {
     socket.emit('presionarBoton');
 });
 
-restartBtn.addEventListener('click', () => {
-    socket.emit('nuevaRonda');
+nextRoundBtn.addEventListener('click', () => {
+    socket.emit('siguienteRonda');
+});
+
+leaveBtn.addEventListener('click', () => {
+    socket.emit('salir');
 });
 
 // Eventos de Socket.IO
@@ -87,9 +92,17 @@ socket.on('rondaLlena', (msg) => {
 });
 
 socket.on('actualizarParticipantes', ({ participantes, maxParticipantes }) => {
+    const soyParticipante = participantes.some(p => p.id === socket.id);
+    
     // Si estábamos en login, pasamos a espera (si nos unimos exitosamente)
-    if (screens.login.classList.contains('active') && participantes.some(p => p.id === socket.id)) {
+    if (screens.login.classList.contains('active') && soyParticipante) {
         showScreen('waiting');
+    }
+
+    // Si alguien salió y quedamos menos de 3, volver a la sala de espera (si somos participantes)
+    if (participantes.length < maxParticipantes && soyParticipante && !screens.waiting.classList.contains('active')) {
+        showScreen('waiting');
+        showToast("Un jugador ha salido. Esperando...");
     }
 
     // Actualizar UI
@@ -124,6 +137,12 @@ socket.on('juegoTerminado', ({ ganador, timestamp }) => {
 });
 
 socket.on('reiniciarRonda', () => {
+    // Volver a la pantalla de juego
+    gameButton.disabled = false;
+    showScreen('game');
+});
+
+socket.on('usuarioSalio', () => {
     // Limpiar estado local
     nameInput.value = '';
     loginError.classList.add('hidden');

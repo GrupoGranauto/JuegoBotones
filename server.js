@@ -97,9 +97,8 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('nuevaRonda', () => {
-        console.log('Reiniciando ronda...');
-        participantes = [];
+    socket.on('siguienteRonda', () => {
+        console.log('Siguiente ronda (manteniendo participantes)...');
         estadoJuego = {
             ganador: null,
             timestamp: null
@@ -108,11 +107,37 @@ io.on('connection', (socket) => {
         io.emit('reiniciarRonda');
     });
 
+    socket.on('salir', () => {
+        console.log(`Usuario salió de la ronda: ${socket.id}`);
+        const eliminado = eliminarParticipante(socket.id);
+        
+        socket.emit('usuarioSalio'); // Enviar a él mismo para que regrese al login
+        
+        if (eliminado) {
+            // Si el juego estaba terminado, lo reseteamos
+            if (estadoJuego.ganador) {
+                estadoJuego.ganador = null;
+                estadoJuego.timestamp = null;
+            }
+
+            io.emit('actualizarParticipantes', {
+                participantes,
+                maxParticipantes: MAX_PARTICIPANTES
+            });
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log(`Usuario desconectado: ${socket.id}`);
         const eliminado = eliminarParticipante(socket.id);
         
         if (eliminado) {
+            // Si el juego estaba terminado, lo reseteamos
+            if (estadoJuego.ganador) {
+                estadoJuego.ganador = null;
+                estadoJuego.timestamp = null;
+            }
+
             io.emit('actualizarParticipantes', {
                 participantes,
                 maxParticipantes: MAX_PARTICIPANTES

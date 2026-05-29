@@ -236,6 +236,17 @@ input:focus {
     margin-top: 1rem;
 }
 
+.result-actions {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.result-actions .btn {
+    flex: 1;
+}
+
 /* Errores y Toast */
 .error-msg {
     color: var(--error-color);
