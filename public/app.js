@@ -25,6 +25,7 @@ const winnerName = document.getElementById('winnerName');
 const winnerTime = document.getElementById('winnerTime');
 const nextRoundBtn = document.getElementById('nextRoundBtn');
 const leaveBtn = document.getElementById('leaveBtn');
+const leaveWaitingBtn = document.getElementById('leaveWaitingBtn');
 
 // Toast
 const toast = document.getElementById('toast');
@@ -81,6 +82,10 @@ nextRoundBtn.addEventListener('click', () => {
 });
 
 leaveBtn.addEventListener('click', () => {
+    socket.emit('salir');
+});
+
+leaveWaitingBtn.addEventListener('click', () => {
     socket.emit('salir');
 });
 
