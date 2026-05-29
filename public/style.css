@@ -235,21 +235,21 @@ input:focus {
 
 .ruleta-bg {
     position: absolute;
-    top: -5%;
-    left: -5%;
-    width: 110%;
-    height: 110%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-size: cover;
     background-position: center;
-    opacity: 0.25;
-    filter: blur(5px);
+    opacity: 0.9;
+    filter: none;
     z-index: -1;
     pointer-events: none;
     transition: opacity 1s ease;
 }
 
 .winner-card {
-    background: var(--card-bg);
+    background: rgba(38, 38, 35, 0.85); /* var(--card-bg) semi-transparente */
     padding: 2rem;
     border-radius: 20px;
     width: 100%;
