@@ -14,13 +14,15 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Estado en memoria
-let participantes = []; // { id, nombre }
-const MAX_PARTICIPANTES = 3;
-
+const maxParticipantes = 3;
+let participantes = []; // { id, nombre, equipo }
 let estadoJuego = {
     ganador: null,
     timestamp: null
 };
+
+let adminId = null;
+let puntajes = { 1: 0, 2: 0, 3: 0 };
 
 // Cargar imágenes de la ruleta
 let ruletaImages = [];
@@ -38,52 +40,70 @@ try {
 
 // Limpiar la lista de desconectados
 const eliminarParticipante = (id) => {
-    const prevLen = participantes.length;
-    participantes = participantes.filter(p => p.id !== id);
-    return prevLen !== participantes.length;
+    if (id === adminId) {
+        adminId = null;
+        console.log(`Admin desconectado: ${id}`);
+        return;
+    }
+
+    const idx = participantes.findIndex(p => p.id === id);
+    if (idx !== -1) {
+        participantes.splice(idx, 1);
+        io.to(id).emit('usuarioSalio');
+        
+        if (estadoJuego.ganador) {
+            estadoJuego.ganador = null;
+            estadoJuego.timestamp = null;
+            io.emit('reiniciarRonda');
+        }
+
+        io.emit('actualizarParticipantes', { participantes, maxParticipantes });
+    }
 };
 
 io.on('connection', (socket) => {
     console.log(`Usuario conectado: ${socket.id}`);
 
     // Enviar estado actual al conectarse (por si recarga la página)
-    socket.emit('estadoActual', {
-        participantes,
-        maxParticipantes: MAX_PARTICIPANTES,
-        estadoJuego
-    });
+    socket.emit('estadoActual', { participantes, maxParticipantes, estadoJuego });
+    socket.emit('actualizarPuntajes', puntajes);
 
-    socket.on('unirse', (nombre) => {
-        const nombreTrim = nombre.trim();
-
-        if (!nombreTrim) {
-            return socket.emit('error', 'El nombre no puede estar vacío.');
+    // Unirse a la ronda
+    socket.on('unirse', ({ nombre, equipo }) => {
+        if (participantes.length >= maxParticipantes) {
+            socket.emit('error', 'La sala está llena.');
+            return;
+        }
+        if (!nombre || nombre.trim() === '') {
+            socket.emit('error', 'El nombre no puede estar vacío.');
+            return;
+        }
+        if (!equipo || !['1', '2', '3'].includes(String(equipo))) {
+            socket.emit('error', 'Equipo inválido.');
+            return;
+        }
+        if (participantes.some(p => p.nombre === nombre)) {
+            socket.emit('error', 'El nombre ya está en uso en esta ronda.');
+            return;
+        }
+        if (participantes.some(p => p.equipo === String(equipo))) {
+            socket.emit('error', `El Equipo ${equipo} ya está ocupado en esta ronda.`);
+            return;
         }
 
-        if (participantes.some(p => p.nombre.toLowerCase() === nombreTrim.toLowerCase())) {
-            return socket.emit('error', 'El nombre ya está en uso en esta ronda.');
-        }
-
-        if (participantes.length >= MAX_PARTICIPANTES) {
-            return socket.emit('rondaLlena', 'Ronda llena. Espera a la siguiente ronda.');
-        }
-
-        // Registrar participante
         participantes.push({
             id: socket.id,
-            nombre: nombreTrim
+            nombre: nombre.trim(),
+            equipo: String(equipo)
         });
 
-        console.log(`${nombreTrim} se ha unido.`);
-
-        // Notificar a todos sobre la actualización de participantes
-        io.emit('actualizarParticipantes', {
-            participantes,
-            maxParticipantes: MAX_PARTICIPANTES
-        });
+        console.log(`Usuario unido: ${nombre} (Equipo ${equipo}) - Total: ${participantes.length}`);
+        
+        io.emit('actualizarParticipantes', { participantes, maxParticipantes });
+        socket.emit('actualizarPuntajes', puntajes);
 
         // Si se llenó la sala, iniciar la ronda automáticamente
-        if (participantes.length === MAX_PARTICIPANTES) {
+        if (participantes.length === maxParticipantes) {
             console.log('Ronda iniciada');
             io.emit('rondaIniciada');
         }
@@ -95,9 +115,9 @@ io.on('connection', (socket) => {
         if (!jugador) return; // Ignorar si no está en la lista
 
         // Solo se acepta si la ronda ya tiene los 3 y no hay ganador
-        if (participantes.length < MAX_PARTICIPANTES) return;
+        if (participantes.length < maxParticipantes) return;
 
-        // Lógica Atómica (Single Thread de Node.js garantiza que no habrá race condition real en memoria)
+        // Lógica Atómica
         if (!estadoJuego.ganador) {
             estadoJuego.ganador = jugador.nombre;
             estadoJuego.timestamp = new Date();
@@ -114,6 +134,7 @@ io.on('connection', (socket) => {
             // Emitir al ganador a todos los participantes
             io.emit('juegoTerminado', {
                 ganador: estadoJuego.ganador,
+                equipoGanador: jugador.equipo,
                 timestamp: estadoJuego.timestamp.toISOString(),
                 ruletaImg: imagenRuleta
             });
@@ -132,40 +153,37 @@ io.on('connection', (socket) => {
 
     socket.on('salir', () => {
         console.log(`Usuario salió de la ronda: ${socket.id}`);
-        const eliminado = eliminarParticipante(socket.id);
-        
-        socket.emit('usuarioSalio'); // Enviar a él mismo para que regrese al login
-        
-        if (eliminado) {
-            // Si el juego estaba terminado, lo reseteamos
-            if (estadoJuego.ganador) {
-                estadoJuego.ganador = null;
-                estadoJuego.timestamp = null;
-            }
+        eliminarParticipante(socket.id);
+    });
 
-            io.emit('actualizarParticipantes', {
-                participantes,
-                maxParticipantes: MAX_PARTICIPANTES
-            });
+    // Control de Administrador
+    socket.on('unirseAdmin', () => {
+        if (adminId && adminId !== socket.id) {
+            socket.emit('error', 'Ya hay un administrador conectado.');
+            return;
         }
+        adminId = socket.id;
+        console.log(`Admin unido: ${socket.id}`);
+        socket.emit('actualizarPuntajes', puntajes);
+    });
+
+    socket.on('modificarPuntaje', ({ equipo, delta }) => {
+        if (socket.id !== adminId) return;
+        if (puntajes[equipo] !== undefined) {
+            puntajes[equipo] += delta;
+            io.emit('actualizarPuntajes', puntajes);
+        }
+    });
+
+    socket.on('reiniciarPuntajes', () => {
+        if (socket.id !== adminId) return;
+        puntajes = { 1: 0, 2: 0, 3: 0 };
+        io.emit('actualizarPuntajes', puntajes);
     });
 
     socket.on('disconnect', () => {
         console.log(`Usuario desconectado: ${socket.id}`);
-        const eliminado = eliminarParticipante(socket.id);
-        
-        if (eliminado) {
-            // Si el juego estaba terminado, lo reseteamos
-            if (estadoJuego.ganador) {
-                estadoJuego.ganador = null;
-                estadoJuego.timestamp = null;
-            }
-
-            io.emit('actualizarParticipantes', {
-                participantes,
-                maxParticipantes: MAX_PARTICIPANTES
-            });
-        }
+        eliminarParticipante(socket.id);
     });
 });
 

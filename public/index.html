@@ -5,12 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Juego en Tiempo Real</title>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
     <main class="container">
         
         <img src="images/AUTO-INSIGHTS-09.png" alt="Logo" class="app-logo">
+
+        <div id="globalScoreboard" class="scoreboard hidden">
+            <div class="team-score score-1">
+                <span class="team-label">EQ 1</span>
+                <span id="score1" class="score-value">0</span>
+            </div>
+            <div class="team-score score-2">
+                <span class="team-label">EQ 2</span>
+                <span id="score2" class="score-value">0</span>
+            </div>
+            <div class="team-score score-3">
+                <span class="team-label">EQ 3</span>
+                <span id="score3" class="score-value">0</span>
+            </div>
+        </div>
 
         <!-- Pantalla de Login -->
         <section id="loginScreen" class="screen active">
@@ -18,9 +33,15 @@
             <p>Ingresa tu nombre para jugar</p>
             <form id="joinForm">
                 <input type="text" id="nameInput" placeholder="Tu nombre" autocomplete="off" required maxlength="15">
+                <select id="teamSelect" required class="team-select">
+                    <option value="" disabled selected>Selecciona tu equipo</option>
+                    <option value="1">Equipo 1</option>
+                    <option value="2">Equipo 2</option>
+                    <option value="3">Equipo 3</option>
+                </select>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Unirse</button>
             </form>
-            <button id="spectatorBtn" class="btn btn-secondary mt-2" style="width: 100%; border-style: dashed;">Entrar como Espectador</button>
+            <button id="spectatorBtn" class="btn btn-secondary mt-2" style="width: 100%; border-style: dashed;">Entrar como Admin (Espectador)</button>
             <div id="loginError" class="error-msg hidden"></div>
         </section>
 
@@ -59,9 +80,39 @@
             <div class="winner-card">
                 <h2>🏆 Ganador</h2>
                 <h3 id="winnerName">-</h3>
+                <h4 id="winnerTeam" style="color: var(--accent-color); margin-top: -10px; margin-bottom: 10px; font-size: 1.2rem;">-</h4>
                 <p>Tiempo exacto:</p>
-                <div id="winnerTime" class="time-display">-</div>
+                <div class="time-display" id="winnerTime">-</div>
             </div>
+
+            <div id="adminControls" class="admin-controls hidden">
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Controles de Admin</h3>
+                <div class="admin-teams">
+                    <div class="admin-team">
+                        <span>EQ 1</span>
+                        <div style="display:flex; gap: 5px;">
+                            <button class="btn btn-sm btn-secondary" onclick="addPoint(1)">+1</button>
+                            <button class="btn btn-sm btn-secondary" onclick="removePoint(1)">-1</button>
+                        </div>
+                    </div>
+                    <div class="admin-team">
+                        <span>EQ 2</span>
+                        <div style="display:flex; gap: 5px;">
+                            <button class="btn btn-sm btn-secondary" onclick="addPoint(2)">+1</button>
+                            <button class="btn btn-sm btn-secondary" onclick="removePoint(2)">-1</button>
+                        </div>
+                    </div>
+                    <div class="admin-team">
+                        <span>EQ 3</span>
+                        <div style="display:flex; gap: 5px;">
+                            <button class="btn btn-sm btn-secondary" onclick="addPoint(3)">+1</button>
+                            <button class="btn btn-sm btn-secondary" onclick="removePoint(3)">-1</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary mt-2" style="width: 100%; border-color: var(--error-color); color: var(--error-color);" onclick="resetScores()">Reiniciar Todos los Puntajes</button>
+            </div>
+
             <div class="result-actions mt-2">
                 <button id="nextRoundBtn" class="btn btn-primary">Siguiente ronda</button>
                 <button id="leaveBtn" class="btn btn-secondary">Salir</button>
@@ -73,6 +124,6 @@
     </main>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="app.js?v=7"></script>
+    <script src="app.js?v=8"></script>
 </body>
 </html>

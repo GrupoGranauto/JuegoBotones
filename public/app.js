@@ -12,9 +12,15 @@ const screens = {
 // Formularios e inputs
 const joinForm = document.getElementById('joinForm');
 const nameInput = document.getElementById('nameInput');
+const teamSelect = document.getElementById('teamSelect');
 const loginError = document.getElementById('loginError');
 const spectatorBtn = document.getElementById('spectatorBtn');
 const leaveSpectatorBtn = document.getElementById('leaveSpectatorBtn');
+
+const globalScoreboard = document.getElementById('globalScoreboard');
+const score1 = document.getElementById('score1');
+const score2 = document.getElementById('score2');
+const score3 = document.getElementById('score3');
 
 // Sala de espera
 const participantCount = document.getElementById('participantCount');
@@ -25,7 +31,9 @@ const gameButton = document.getElementById('gameButton');
 
 // Resultados
 const winnerName = document.getElementById('winnerName');
+const winnerTeam = document.getElementById('winnerTeam');
 const winnerTime = document.getElementById('winnerTime');
+const adminControls = document.getElementById('adminControls');
 const nextRoundBtn = document.getElementById('nextRoundBtn');
 const leaveBtn = document.getElementById('leaveBtn');
 const leaveWaitingBtn = document.getElementById('leaveWaitingBtn');
@@ -44,6 +52,12 @@ let isSpectator = false;
 const showScreen = (screenName) => {
     Object.values(screens).forEach(s => s.classList.remove('active'));
     screens[screenName].classList.add('active');
+    
+    if (screenName === 'login') {
+        globalScoreboard.classList.add('hidden');
+    } else {
+        globalScoreboard.classList.remove('hidden');
+    }
 };
 
 const showToast = (message, duration = 3000) => {
@@ -74,9 +88,13 @@ const formatTime = (isoString) => {
 joinForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const name = nameInput.value.trim();
-    if (name) {
+    const equipo = teamSelect.value;
+    if (name && equipo) {
         isSpectator = false;
-        socket.emit('unirse', name);
+        socket.emit('unirse', { nombre: name, equipo });
+    } else {
+        loginError.textContent = "Debes ingresar tu nombre y seleccionar un equipo.";
+        loginError.classList.remove('hidden');
     }
 });
 
@@ -84,6 +102,7 @@ spectatorBtn.addEventListener('click', () => {
     isSpectator = true;
     soyParticipante = false;
     loginError.classList.add('hidden');
+    socket.emit('unirseAdmin');
     showScreen('waiting');
 });
 
@@ -149,11 +168,28 @@ socket.on('actualizarParticipantes', ({ participantes, maxParticipantes }) => {
     participantsList.innerHTML = '';
     participantes.forEach(p => {
         const li = document.createElement('li');
-        li.textContent = p.nombre;
+        li.textContent = `${p.nombre} (Eq. ${p.equipo})`;
         if (p.id === socket.id) li.textContent += ' (Tú)';
         participantsList.appendChild(li);
     });
 });
+
+socket.on('actualizarPuntajes', (puntajes) => {
+    globalScoreboard.classList.remove('hidden');
+    score1.textContent = puntajes[1];
+    score2.textContent = puntajes[2];
+    score3.textContent = puntajes[3];
+});
+
+window.addPoint = (equipo) => {
+    socket.emit('modificarPuntaje', { equipo, delta: 1 });
+};
+window.removePoint = (equipo) => {
+    socket.emit('modificarPuntaje', { equipo, delta: -1 });
+};
+window.resetScores = () => {
+    socket.emit('reiniciarPuntajes');
+};
 
 socket.on('rondaIniciada', () => {
     if (soyParticipante) {
@@ -164,8 +200,9 @@ socket.on('rondaIniciada', () => {
     }
 });
 
-socket.on('juegoTerminado', ({ ganador, timestamp, ruletaImg }) => {
+socket.on('juegoTerminado', ({ ganador, equipoGanador, timestamp, ruletaImg }) => {
     winnerName.textContent = ganador;
+    winnerTeam.textContent = `Equipo ${equipoGanador}`;
     winnerTime.textContent = formatTime(timestamp);
     
     // Animación del ganador
@@ -184,6 +221,12 @@ socket.on('juegoTerminado', ({ ganador, timestamp, ruletaImg }) => {
     
     // Deshabilitar botón para que no sigan presionando
     gameButton.disabled = true;
+    
+    if (isSpectator) {
+        adminControls.classList.remove('hidden');
+    } else {
+        adminControls.classList.add('hidden');
+    }
     
     // Mostrar pantalla de resultados
     showScreen('result');
@@ -224,6 +267,7 @@ socket.on('usuarioSalio', () => {
 
     // Limpiar estado local
     nameInput.value = '';
+    teamSelect.value = '';
     loginError.classList.add('hidden');
     gameButton.disabled = true;
     
