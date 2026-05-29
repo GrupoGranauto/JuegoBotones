@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Juego en Tiempo Real</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="container">
+        
+        <!-- Pantalla de Login -->
+        <section id="loginScreen" class="screen active">
+            <h1>Únete a la ronda</h1>
+            <p>Ingresa tu nombre para jugar</p>
+            <form id="joinForm">
+                <input type="text" id="nameInput" placeholder="Tu nombre" autocomplete="off" required maxlength="15">
+                <button type="submit" class="btn btn-primary">Unirse</button>
+            </form>
+            <div id="loginError" class="error-msg hidden"></div>
+        </section>
+
+        <!-- Pantalla de Espera -->
+        <section id="waitingScreen" class="screen">
+            <h2>Esperando participantes...</h2>
+            <div class="participants-info">
+                <p>Participantes conectados:</p>
+                <h3 id="participantCount">0/3</h3>
+            </div>
+            <ul id="participantsList" class="participants-list">
+                <!-- Nombres inyectados por JS -->
+            </ul>
+        </section>
+
+        <!-- Pantalla de Juego -->
+        <section id="gameScreen" class="screen">
+            <button id="gameButton" class="btn btn-huge">PRESIONAR</button>
+        </section>
+
+        <!-- Pantalla de Resultados -->
+        <section id="resultScreen" class="screen">
+            <div class="winner-card">
+                <h2>🏆 Ganador</h2>
+                <h3 id="winnerName">-</h3>
+                <p>Tiempo exacto:</p>
+                <div id="winnerTime" class="time-display">-</div>
+            </div>
+            <button id="restartBtn" class="btn btn-secondary mt-2">Nueva ronda</button>
+        </section>
+
+        <!-- Toast Notification (Errores globales o mensajes de "Ronda llena") -->
+        <div id="toast" class="toast hidden">Mensaje</div>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
