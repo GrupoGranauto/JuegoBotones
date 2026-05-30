@@ -171,6 +171,15 @@ io.on('connection', (socket) => {
         console.log(`Admin unido: ${socket.id}`);
         socket.emit('adminAceptado');
         socket.emit('actualizarPuntajes', puntajes);
+        
+        // Sincronizar al admin con el estado actual del juego
+        if (resultadosRonda.length > 0) {
+            // Si la ronda ya terminó, mandarlo a los resultados para que pueda sumar puntos
+            socket.emit('juegoTerminado', resultadosRonda);
+        } else if (participantes.length === maxParticipantes) {
+            // Si ya están los 3 pero no han terminado, mandarlo directo a la pantalla de espectador
+            socket.emit('rondaIniciada');
+        }
     });
 
     socket.on('modificarPuntaje', ({ equipo, delta }) => {
