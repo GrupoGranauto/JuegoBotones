@@ -13,6 +13,7 @@ const screens = {
 const joinForm = document.getElementById('joinForm');
 const nameInput = document.getElementById('nameInput');
 const teamSelect = document.getElementById('teamSelect');
+const teamNameInput = document.getElementById('teamNameInput');
 const loginError = document.getElementById('loginError');
 const spectatorBtn = document.getElementById('spectatorBtn');
 const leaveSpectatorBtn = document.getElementById('leaveSpectatorBtn');
@@ -85,16 +86,58 @@ const formatTime = (isoString) => {
     return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}.${ms}`;
 };
 
+const actualizarNombresEquipos = (participantes) => {
+    // Reset scoreboard labels to default
+    document.getElementById('teamLabel1').textContent = 'EQ 1';
+    document.getElementById('teamLabel2').textContent = 'EQ 2';
+    document.getElementById('teamLabel3').textContent = 'EQ 3';
+
+    // Also reset admin panel names
+    const adminLabel1 = document.getElementById('adminTeamName1');
+    const adminLabel2 = document.getElementById('adminTeamName2');
+    const adminLabel3 = document.getElementById('adminTeamName3');
+    if (adminLabel1) adminLabel1.textContent = 'Equipo 1';
+    if (adminLabel2) adminLabel2.textContent = 'Equipo 2';
+    if (adminLabel3) adminLabel3.textContent = 'Equipo 3';
+
+    // Update with custom team names
+    participantes.forEach(p => {
+        if (p.nombreEquipo) {
+            const label = document.getElementById(`teamLabel${p.equipo}`);
+            if (label) {
+                label.textContent = p.nombreEquipo;
+            }
+            const adminLabel = document.getElementById(`adminTeamName${p.equipo}`);
+            if (adminLabel) {
+                adminLabel.textContent = p.nombreEquipo;
+            }
+        }
+    });
+};
+
 // Eventos de usuario
+teamSelect.addEventListener('change', () => {
+    if (teamSelect.value) {
+        teamNameInput.classList.remove('hidden');
+        teamNameInput.required = true;
+        teamNameInput.focus();
+    } else {
+        teamNameInput.classList.add('hidden');
+        teamNameInput.required = false;
+        teamNameInput.value = '';
+    }
+});
+
 joinForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const name = nameInput.value.trim();
     const equipo = teamSelect.value;
-    if (name && equipo) {
+    const nombreEquipo = teamNameInput.value.trim();
+    if (name && equipo && nombreEquipo) {
         isSpectator = false;
-        socket.emit('unirse', { nombre: name, equipo });
+        socket.emit('unirse', { nombre: name, equipo, nombreEquipo });
     } else {
-        loginError.textContent = "Debes ingresar tu nombre y seleccionar un equipo.";
+        loginError.textContent = "Debes ingresar tu nombre, seleccionar un equipo y asignarle un nombre.";
         loginError.classList.remove('hidden');
     }
 });
@@ -159,6 +202,8 @@ socket.on('rondaLlena', (msg) => {
 socket.on('actualizarParticipantes', ({ participantes, maxParticipantes }) => {
     soyParticipante = participantes.some(p => p.id === socket.id);
     
+    actualizarNombresEquipos(participantes);
+
     // Si estábamos en login, pasamos a espera (si nos unimos exitosamente)
     if (screens.login.classList.contains('active') && soyParticipante) {
         showScreen('waiting');
@@ -176,7 +221,7 @@ socket.on('actualizarParticipantes', ({ participantes, maxParticipantes }) => {
     participantsList.innerHTML = '';
     participantes.forEach(p => {
         const li = document.createElement('li');
-        li.textContent = `${p.nombre} (Eq. ${p.equipo})`;
+        li.textContent = `${p.nombre} (${p.nombreEquipo || 'Equipo ' + p.equipo})`;
         if (p.id === socket.id) li.textContent += ' (Tú)';
         participantsList.appendChild(li);
     });
@@ -216,7 +261,7 @@ socket.on('juegoTerminado', (resultadosRonda) => {
     
     const ganador = resultadosRonda[0];
     winnerName.textContent = ganador.nombre;
-    winnerTeam.textContent = `Equipo ${ganador.equipo}`;
+    winnerTeam.textContent = ganador.nombreEquipo || `Equipo ${ganador.equipo}`;
     winnerTime.textContent = formatTime(ganador.timestamp);
     
     // Animación del ganador
@@ -239,7 +284,7 @@ socket.on('juegoTerminado', (resultadosRonda) => {
             
             const name = document.createElement('span');
             name.className = 'place-name';
-            name.textContent = `${res.nombre} (Eq. ${res.equipo})`;
+            name.textContent = `${res.nombre} (${res.nombreEquipo || 'Equipo ' + res.equipo})`;
             
             const time = document.createElement('span');
             time.className = 'place-time';
@@ -285,6 +330,9 @@ socket.on('usuarioSalio', () => {
     // Limpiar estado local
     nameInput.value = '';
     teamSelect.value = '';
+    teamNameInput.value = '';
+    teamNameInput.classList.add('hidden');
+    teamNameInput.required = false;
     loginError.classList.add('hidden');
     gameButton.disabled = true;
     
@@ -296,6 +344,7 @@ socket.on('usuarioSalio', () => {
 
 // Restaurar estado si se recarga la página
 socket.on('estadoActual', ({ participantes, maxParticipantes, resultadosRonda }) => {
+    actualizarNombresEquipos(participantes || []);
     if (resultadosRonda && resultadosRonda.length > 0) {
         showScreen('login');
     } else if (participantes.length === maxParticipantes) {
