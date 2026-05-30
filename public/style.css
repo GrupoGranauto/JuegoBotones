@@ -656,11 +656,12 @@ input:focus {
     body.admin-mode #resultScreen.active {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
         gap: 2rem;
         align-items: stretch;
         width: 100%;
         flex: 1;
-        overflow: hidden;
+        overflow-y: auto;
     }
 
     body.admin-mode .winner-card {
@@ -698,14 +699,15 @@ input:focus {
     }
     
     body.admin-mode .result-actions {
-        position: absolute;
-        top: 1.5rem;
-        right: 1.5rem;
-        width: auto;
+        width: 100% !important;
+        display: flex;
+        justify-content: center;
+        margin-top: 0;
+        padding-bottom: 1rem;
     }
     
     body.admin-mode .result-actions button {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
     }
 }
