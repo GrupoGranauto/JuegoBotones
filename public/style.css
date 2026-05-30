@@ -32,6 +32,7 @@ body {
     overflow-x: hidden;
 }
 
+
 .container {
     width: 100%;
     max-width: 420px;
@@ -622,4 +623,89 @@ input:focus {
     30%, 50%, 70%, 90% { transform: scale3d(1.2, 1.2, 1.2) rotate3d(0, 0, 1, 3deg); color: #fff; }
     40%, 60%, 80% { transform: scale3d(1.2, 1.2, 1.2) rotate3d(0, 0, 1, -3deg); color: var(--accent-hover); }
     100% { transform: scale3d(1, 1, 1); }
+}
+
+/* Dashboard layout para Admin en PC */
+@media (min-width: 700px) {
+    body.admin-mode {
+        overflow: hidden;
+        padding: 0;
+        align-items: center;
+    }
+    
+    body.admin-mode .container {
+        max-width: 1000px;
+        height: 100vh;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+    
+    body.admin-mode .app-logo {
+        width: 100px;
+        margin-bottom: 0.5rem;
+    }
+    
+    body.admin-mode .scoreboard {
+        margin-bottom: 1.5rem;
+        max-width: 600px;
+        padding: 0.5rem;
+    }
+    
+    body.admin-mode #resultScreen {
+        display: flex;
+        flex-direction: row;
+        gap: 2rem;
+        align-items: stretch;
+        width: 100%;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    body.admin-mode .winner-card {
+        flex: 1;
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow-y: auto;
+    }
+    
+    body.admin-mode .admin-controls {
+        flex: 1;
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    
+    body.admin-mode .admin-teams {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    body.admin-mode .admin-team {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+    }
+    
+    body.admin-mode .admin-actions {
+        margin-top: auto;
+    }
+    
+    body.admin-mode .result-actions {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        width: auto;
+    }
+    
+    body.admin-mode .result-actions button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
 }

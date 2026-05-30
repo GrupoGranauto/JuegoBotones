@@ -201,7 +201,7 @@ window.resetScores = () => {
 
 socket.on('rondaIniciada', () => {
     gameButton.textContent = 'PRESIONA';
-    gameButton.style.fontSize = '3rem';
+    gameButton.style.fontSize = '2.2rem';
     
     if (soyParticipante) {
         showScreen('game');
@@ -269,6 +269,9 @@ socket.on('juegoTerminado', (resultadosRonda) => {
 });
 
 socket.on('reiniciarRonda', () => {
+    gameButton.textContent = 'PRESIONA';
+    gameButton.style.fontSize = '2.2rem';
+    
     // Volver a la pantalla de juego solo si somos participantes de la ronda
     if (soyParticipante) {
         gameButton.disabled = false;
