@@ -37,7 +37,6 @@ const adminControls = document.getElementById('adminControls');
 const nextRoundBtn = document.getElementById('nextRoundBtn');
 const leaveBtn = document.getElementById('leaveBtn');
 const leaveWaitingBtn = document.getElementById('leaveWaitingBtn');
-const ruletaImgElement = document.getElementById('ruletaImgElement');
 
 // Toast
 const toast = document.getElementById('toast');
@@ -99,10 +98,13 @@ joinForm.addEventListener('submit', (e) => {
 });
 
 spectatorBtn.addEventListener('click', () => {
-    isSpectator = true;
-    soyParticipante = false;
     loginError.classList.add('hidden');
     socket.emit('unirseAdmin');
+});
+
+socket.on('adminAceptado', () => {
+    isSpectator = true;
+    soyParticipante = false;
     showScreen('waiting');
 });
 
@@ -200,7 +202,7 @@ socket.on('rondaIniciada', () => {
     }
 });
 
-socket.on('juegoTerminado', ({ ganador, equipoGanador, timestamp, ruletaImg }) => {
+socket.on('juegoTerminado', ({ ganador, equipoGanador, timestamp }) => {
     winnerName.textContent = ganador;
     winnerTeam.textContent = `Equipo ${equipoGanador}`;
     winnerTime.textContent = formatTime(timestamp);
@@ -209,15 +211,6 @@ socket.on('juegoTerminado', ({ ganador, equipoGanador, timestamp, ruletaImg }) =
     winnerName.classList.remove('winner-animate');
     void winnerName.offsetWidth; // trigger reflow
     winnerName.classList.add('winner-animate');
-    
-    if (ruletaImg) {
-        ruletaImgElement.src = ruletaImg;
-        ruletaImgElement.classList.remove('hidden', 'hide-funny');
-        ruletaImgElement.classList.add('show-funny');
-    } else {
-        ruletaImgElement.classList.add('hidden');
-        ruletaImgElement.classList.remove('show-funny', 'hide-funny');
-    }
     
     // Deshabilitar botón para que no sigan presionando
     gameButton.disabled = true;
@@ -233,17 +226,6 @@ socket.on('juegoTerminado', ({ ganador, equipoGanador, timestamp, ruletaImg }) =
 });
 
 socket.on('reiniciarRonda', () => {
-    // Limpiar ruleta animada
-    if (ruletaImgElement.classList.contains('show-funny')) {
-        ruletaImgElement.classList.remove('show-funny');
-        ruletaImgElement.classList.add('hide-funny');
-        setTimeout(() => {
-            ruletaImgElement.classList.add('hidden');
-        }, 600);
-    } else {
-        ruletaImgElement.classList.add('hidden');
-    }
-
     // Volver a la pantalla de juego solo si somos participantes de la ronda
     if (soyParticipante) {
         gameButton.disabled = false;
@@ -254,17 +236,6 @@ socket.on('reiniciarRonda', () => {
 });
 
 socket.on('usuarioSalio', () => {
-    // Limpiar ruleta animada
-    if (ruletaImgElement.classList.contains('show-funny')) {
-        ruletaImgElement.classList.remove('show-funny');
-        ruletaImgElement.classList.add('hide-funny');
-        setTimeout(() => {
-            ruletaImgElement.classList.add('hidden');
-        }, 600);
-    } else {
-        ruletaImgElement.classList.add('hidden');
-    }
-
     // Limpiar estado local
     nameInput.value = '';
     teamSelect.value = '';
