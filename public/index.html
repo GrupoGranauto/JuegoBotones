@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Juego en Tiempo Real</title>
+    <title>Juegos - AutoInsights</title>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=8">
@@ -13,19 +13,19 @@
 <body>
     <main class="container">
 
-        <img src="images/AUTO-INSIGHTS-09.png" alt="Logo" class="app-logo">
+        <img src="images/AUTO INSIGHTS-02.jpg" alt="Logo" class="app-logo">
 
         <div id="globalScoreboard" class="scoreboard hidden">
             <div class="team-score score-1">
-                <span class="team-label" id="teamLabel1">EQ 1</span>
+                <span class="team-label">EQ 1</span>
                 <span id="score1" class="score-value">0</span>
             </div>
             <div class="team-score score-2">
-                <span class="team-label" id="teamLabel2">EQ 2</span>
+                <span class="team-label">EQ 2</span>
                 <span id="score2" class="score-value">0</span>
             </div>
             <div class="team-score score-3">
-                <span class="team-label" id="teamLabel3">EQ 3</span>
+                <span class="team-label">EQ 3</span>
                 <span id="score3" class="score-value">0</span>
             </div>
         </div>
@@ -42,7 +42,6 @@
                     <option value="2">Equipo 2</option>
                     <option value="3">Equipo 3</option>
                 </select>
-                <input type="text" id="teamNameInput" placeholder="Nombre de tu equipo" autocomplete="off" maxlength="20" class="hidden">
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Unirse</button>
             </form>
             <button id="spectatorBtn" class="btn btn-secondary mt-2" style="width: 100%; border-style: dashed;">Entrar
@@ -114,7 +113,7 @@
                 <div class="admin-teams">
                     <!-- Equipo 1 -->
                     <div class="admin-team team-red">
-                        <span class="team-name" id="adminTeamName1">Equipo 1</span>
+                        <span class="team-name">Equipo 1</span>
                         <div class="admin-btn-group">
                             <button class="btn-score btn-minus" onclick="removePoint(1)">-1</button>
                             <button class="btn-score btn-plus" onclick="addPoint(1)">+1</button>
@@ -122,7 +121,7 @@
                     </div>
                     <!-- Equipo 2 -->
                     <div class="admin-team team-blue">
-                        <span class="team-name" id="adminTeamName2">Equipo 2</span>
+                        <span class="team-name">Equipo 2</span>
                         <div class="admin-btn-group">
                             <button class="btn-score btn-minus" onclick="removePoint(2)">-1</button>
                             <button class="btn-score btn-plus" onclick="addPoint(2)">+1</button>
@@ -130,7 +129,7 @@
                     </div>
                     <!-- Equipo 3 -->
                     <div class="admin-team team-green">
-                        <span class="team-name" id="adminTeamName3">Equipo 3</span>
+                        <span class="team-name">Equipo 3</span>
                         <div class="admin-btn-group">
                             <button class="btn-score btn-minus" onclick="removePoint(3)">-1</button>
                             <button class="btn-score btn-plus" onclick="addPoint(3)">+1</button>

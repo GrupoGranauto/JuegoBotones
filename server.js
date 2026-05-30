@@ -70,7 +70,7 @@ io.on('connection', (socket) => {
     socket.emit('actualizarPuntajes', puntajes);
 
     // Unirse a la ronda
-    socket.on('unirse', ({ nombre, equipo, nombreEquipo }) => {
+    socket.on('unirse', ({ nombre, equipo }) => {
         if (participantes.length >= maxParticipantes) {
             socket.emit('error', 'La sala está llena.');
             return;
@@ -81,10 +81,6 @@ io.on('connection', (socket) => {
         }
         if (!equipo || !['1', '2', '3'].includes(String(equipo))) {
             socket.emit('error', 'Equipo inválido.');
-            return;
-        }
-        if (!nombreEquipo || nombreEquipo.trim() === '') {
-            socket.emit('error', 'El nombre del equipo no puede estar vacío.');
             return;
         }
         if (participantes.some(p => p.nombre === nombre)) {
@@ -99,11 +95,10 @@ io.on('connection', (socket) => {
         participantes.push({
             id: socket.id,
             nombre: nombre.trim(),
-            equipo: String(equipo),
-            nombreEquipo: nombreEquipo.trim()
+            equipo: String(equipo)
         });
 
-        console.log(`Usuario unido: ${nombre} (Equipo ${equipo} - ${nombreEquipo}) - Total: ${participantes.length}`);
+        console.log(`Usuario unido: ${nombre} (Equipo ${equipo}) - Total: ${participantes.length}`);
         
         io.emit('actualizarParticipantes', { participantes, maxParticipantes });
         socket.emit('actualizarPuntajes', puntajes);
@@ -134,11 +129,10 @@ io.on('connection', (socket) => {
             id: socket.id,
             nombre: jugador.nombre,
             equipo: jugador.equipo,
-            nombreEquipo: jugador.nombreEquipo,
             timestamp: ts
         });
 
-        console.log(`Boton presionado por: ${jugador.nombre} (Eq ${jugador.equipo} - ${jugador.nombreEquipo}) a las ${ts.toISOString()}`);
+        console.log(`Boton presionado por: ${jugador.nombre} (Eq ${jugador.equipo}) a las ${ts.toISOString()}`);
 
         if (resultadosRonda.length === 1) {
             // Primer jugador en presionar: Iniciar ventana de 3 segundos
