@@ -92,31 +92,40 @@
             </div>
 
             <div id="adminControls" class="admin-controls hidden">
-                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Controles de Admin</h3>
+                <div class="admin-header">
+                    <span class="admin-icon">⚙️</span>
+                    <h3>Panel de Control</h3>
+                </div>
+                
                 <div class="admin-teams">
-                    <div class="admin-team">
-                        <span>EQ 1</span>
-                        <div style="display:flex; gap: 5px;">
-                            <button class="btn btn-sm btn-secondary" onclick="addPoint(1)">+1</button>
-                            <button class="btn btn-sm btn-secondary" onclick="removePoint(1)">-1</button>
+                    <!-- Equipo 1 -->
+                    <div class="admin-team team-red">
+                        <span class="team-name">Equipo 1</span>
+                        <div class="admin-btn-group">
+                            <button class="btn-score btn-minus" onclick="removePoint(1)">-1</button>
+                            <button class="btn-score btn-plus" onclick="addPoint(1)">+1</button>
                         </div>
                     </div>
-                    <div class="admin-team">
-                        <span>EQ 2</span>
-                        <div style="display:flex; gap: 5px;">
-                            <button class="btn btn-sm btn-secondary" onclick="addPoint(2)">+1</button>
-                            <button class="btn btn-sm btn-secondary" onclick="removePoint(2)">-1</button>
+                    <!-- Equipo 2 -->
+                    <div class="admin-team team-blue">
+                        <span class="team-name">Equipo 2</span>
+                        <div class="admin-btn-group">
+                            <button class="btn-score btn-minus" onclick="removePoint(2)">-1</button>
+                            <button class="btn-score btn-plus" onclick="addPoint(2)">+1</button>
                         </div>
                     </div>
-                    <div class="admin-team">
-                        <span>EQ 3</span>
-                        <div style="display:flex; gap: 5px;">
-                            <button class="btn btn-sm btn-secondary" onclick="addPoint(3)">+1</button>
-                            <button class="btn btn-sm btn-secondary" onclick="removePoint(3)">-1</button>
+                    <!-- Equipo 3 -->
+                    <div class="admin-team team-green">
+                        <span class="team-name">Equipo 3</span>
+                        <div class="admin-btn-group">
+                            <button class="btn-score btn-minus" onclick="removePoint(3)">-1</button>
+                            <button class="btn-score btn-plus" onclick="addPoint(3)">+1</button>
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-secondary mt-2" style="width: 100%; border-color: var(--error-color); color: var(--error-color);" onclick="resetScores()">Reiniciar Todos los Puntajes</button>
+                <button class="btn-reset-scores" onclick="resetScores()">
+                    <span class="icon">🗑️</span> Reiniciar Puntajes
+                </button>
             </div>
 
             <div class="result-actions mt-2">
