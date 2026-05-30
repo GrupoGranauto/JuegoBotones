@@ -342,8 +342,52 @@ input:focus {
     padding: 0.8rem;
     border-radius: 16px;
     margin-bottom: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
     border: 1px solid rgba(255,255,255,0.05);
+}
+
+.podium-1st {
+    margin-bottom: 1rem;
+}
+
+.other-places {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 1rem;
+}
+
+.place-item {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    background: rgba(0,0,0,0.2);
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    align-items: center;
+}
+
+.place-rank {
+    font-weight: bold;
+    color: var(--secondary-color);
+    width: 30px;
+    font-size: 1.1rem;
+}
+.place-name {
+    flex: 1;
+    text-align: left;
+    margin-left: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.place-time {
+    color: var(--accent-color);
+    font-family: monospace;
+    font-size: 0.85rem;
 }
 
 .team-score {

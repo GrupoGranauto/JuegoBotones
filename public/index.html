@@ -77,11 +77,18 @@
         <!-- Pantalla de Resultados -->
         <section id="resultScreen" class="screen">
             <div class="winner-card">
-                <h2>🏆 Ganador</h2>
-                <h3 id="winnerName">-</h3>
-                <h4 id="winnerTeam" style="color: var(--accent-color); margin-top: -10px; margin-bottom: 10px; font-size: 1.2rem;">-</h4>
-                <p>Tiempo exacto:</p>
-                <div class="time-display" id="winnerTime">-</div>
+                <h2>🏆 Resultados</h2>
+                
+                <div id="firstPlace" class="podium-1st">
+                    <h3 id="winnerName">-</h3>
+                    <h4 id="winnerTeam" style="color: var(--accent-color); margin-top: -10px; margin-bottom: 10px; font-size: 1.2rem;">-</h4>
+                    <p>Tiempo de registro:</p>
+                    <div class="time-display" id="winnerTime">-</div>
+                </div>
+
+                <div id="otherPlaces" class="other-places mt-2">
+                    <!-- 2do y 3er lugar inyectados por JS -->
+                </div>
             </div>
 
             <div id="adminControls" class="admin-controls hidden">

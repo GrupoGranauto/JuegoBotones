@@ -30,6 +30,8 @@ const participantsList = document.getElementById('participantsList');
 const gameButton = document.getElementById('gameButton');
 
 // Resultados
+const firstPlace = document.getElementById('firstPlace');
+const otherPlaces = document.getElementById('otherPlaces');
 const winnerName = document.getElementById('winnerName');
 const winnerTeam = document.getElementById('winnerTeam');
 const winnerTime = document.getElementById('winnerTime');
@@ -115,6 +117,9 @@ leaveSpectatorBtn.addEventListener('click', () => {
 
 gameButton.addEventListener('click', () => {
     socket.emit('presionarBoton');
+    gameButton.disabled = true;
+    gameButton.textContent = '¡Registrado!';
+    gameButton.style.fontSize = '1.8rem';
 });
 
 nextRoundBtn.addEventListener('click', () => {
@@ -194,6 +199,9 @@ window.resetScores = () => {
 };
 
 socket.on('rondaIniciada', () => {
+    gameButton.textContent = 'PRESIONA';
+    gameButton.style.fontSize = '3rem';
+    
     if (soyParticipante) {
         showScreen('game');
         gameButton.disabled = false;
@@ -202,23 +210,57 @@ socket.on('rondaIniciada', () => {
     }
 });
 
-socket.on('juegoTerminado', ({ ganador, equipoGanador, timestamp }) => {
-    winnerName.textContent = ganador;
-    winnerTeam.textContent = `Equipo ${equipoGanador}`;
-    winnerTime.textContent = formatTime(timestamp);
+socket.on('juegoTerminado', (resultadosRonda) => {
+    if (!resultadosRonda || resultadosRonda.length === 0) return;
+    
+    const ganador = resultadosRonda[0];
+    winnerName.textContent = ganador.nombre;
+    winnerTeam.textContent = `Equipo ${ganador.equipo}`;
+    winnerTime.textContent = formatTime(ganador.timestamp);
     
     // Animación del ganador
-    winnerName.classList.remove('winner-animate');
-    void winnerName.offsetWidth; // trigger reflow
-    winnerName.classList.add('winner-animate');
+    firstPlace.classList.remove('winner-animate');
+    void firstPlace.offsetWidth; // trigger reflow
+    firstPlace.classList.add('winner-animate');
+    
+    otherPlaces.innerHTML = '';
+    if (resultadosRonda.length > 1) {
+        const time0 = new Date(ganador.timestamp).getTime();
+        for (let i = 1; i < resultadosRonda.length; i++) {
+            const res = resultadosRonda[i];
+            const diff = new Date(res.timestamp).getTime() - time0;
+            const item = document.createElement('div');
+            item.className = 'place-item';
+            
+            const rank = document.createElement('span');
+            rank.className = 'place-rank';
+            rank.textContent = `${i + 1}º`;
+            
+            const name = document.createElement('span');
+            name.className = 'place-name';
+            name.textContent = `${res.nombre} (Eq. ${res.equipo})`;
+            
+            const time = document.createElement('span');
+            time.className = 'place-time';
+            time.textContent = `+${diff}ms`;
+            
+            item.appendChild(rank);
+            item.appendChild(name);
+            item.appendChild(time);
+            
+            otherPlaces.appendChild(item);
+        }
+    }
     
     // Deshabilitar botón para que no sigan presionando
     gameButton.disabled = true;
     
     if (isSpectator) {
         adminControls.classList.remove('hidden');
+        nextRoundBtn.classList.remove('hidden');
     } else {
         adminControls.classList.add('hidden');
+        nextRoundBtn.classList.add('hidden');
     }
     
     // Mostrar pantalla de resultados
@@ -249,14 +291,9 @@ socket.on('usuarioSalio', () => {
 });
 
 // Restaurar estado si se recarga la página
-socket.on('estadoActual', ({ participantes, maxParticipantes, estadoJuego }) => {
-    // Si el usuario ya estaba registrado en esta sesión de socket, iría directo
-    // Pero como socket id cambia al recargar, volverá al login.
-    // Solo actualizamos la UI si hay ronda iniciada o terminada
-    if (estadoJuego.ganador) {
-        winnerName.textContent = estadoJuego.ganador;
-        winnerTime.textContent = formatTime(estadoJuego.timestamp);
-        showScreen('result');
+socket.on('estadoActual', ({ participantes, maxParticipantes, resultadosRonda }) => {
+    if (resultadosRonda && resultadosRonda.length > 0) {
+        showScreen('login');
     } else if (participantes.length === maxParticipantes) {
         showScreen('login');
         showToast("Hay una ronda en curso, espera a que termine.");
