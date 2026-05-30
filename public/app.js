@@ -277,7 +277,7 @@ socket.on('reiniciarRonda', () => {
         gameButton.disabled = false;
         showScreen('game');
     } else if (isSpectator) {
-        showScreen('waiting');
+        showScreen('spectator');
     }
 });
 
