@@ -846,16 +846,171 @@ body.admin-mode .admin-image-container {
 
 @media (max-width: 700px) {
     .admin-image-container {
-        position: relative;
-        top: 0;
-        left: 0;
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        width: 100%;
-        align-items: center;
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 1000;
+        margin: 0;
+        width: auto;
+        align-items: flex-start;
+        display: none;
+    }
+    body.admin-mode .admin-image-container {
+        display: flex !important;
+    }
+    .btn-toggle-img {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+        border-radius: 10px;
     }
     .admin-image-wrapper {
-        max-width: 100%;
+        max-width: 200px;
     }
 }
+
+/* Compactación general para Teléfonos Celulares */
+@media (max-width: 600px) {
+    body {
+        padding: 1rem 0.75rem 2rem 0.75rem;
+    }
+    
+    .container {
+        min-height: auto;
+    }
+
+    .app-logo {
+        width: 105px;
+        margin-bottom: 0.8rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    p {
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .scoreboard {
+        padding: 0.5rem;
+        margin-bottom: 0.8rem;
+        gap: 0.5rem;
+    }
+
+    .team-score {
+        padding: 0.4rem 0.6rem;
+        min-width: 75px;
+        flex: 1 1 calc(33.33% - 0.5rem);
+    }
+
+    .score-value {
+        font-size: 1.3rem;
+    }
+
+    .team-label {
+        font-size: 0.7rem;
+    }
+
+    .participants-info {
+        padding: 0.8rem;
+        margin-bottom: 0.6rem;
+    }
+
+    #participantCount {
+        font-size: 1.6rem;
+    }
+
+    .participants-list {
+        gap: 0.4rem;
+    }
+
+    .participants-list li {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.95rem;
+        border-radius: 8px;
+    }
+
+    .btn {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border-radius: 10px;
+    }
+
+    .btn-huge {
+        width: 185px;
+        height: 185px;
+        font-size: 1.7rem;
+    }
+
+    .winner-card {
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+        border-radius: 16px;
+    }
+
+    #winnerName {
+        font-size: 1.8rem;
+        margin: 0.4rem 0 0.6rem 0;
+    }
+
+    .time-display {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+    }
+
+    .admin-controls {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 16px;
+    }
+
+    .admin-header {
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.6rem;
+    }
+
+    .admin-teams {
+        max-height: 180px;
+        gap: 0.5rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .admin-team {
+        padding: 0.5rem 0.75rem;
+        border-radius: 10px;
+    }
+
+    .admin-team-name {
+        font-size: 0.9rem;
+        max-width: 120px;
+    }
+
+    .admin-team-score {
+        font-size: 0.75rem;
+    }
+
+    .btn-score {
+        width: 38px;
+        height: 38px;
+        font-size: 1.05rem;
+    }
+
+    .btn-reset-scores {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .footer-credits {
+        padding-top: 1rem;
+        font-size: 0.75rem;
+    }
+}
+
 
