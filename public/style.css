@@ -653,7 +653,7 @@ input:focus {
         padding: 0.5rem;
     }
     
-    body.admin-mode #resultScreen {
+    body.admin-mode #resultScreen.active {
         display: flex;
         flex-direction: row;
         gap: 2rem;
