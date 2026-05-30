@@ -45,6 +45,12 @@ const eliminarParticipante = (id) => {
     if (idx !== -1) {
         const equipoNombre = participantes[idx].equipo;
         participantes.splice(idx, 1);
+        
+        // Eliminar puntaje del equipo al salir/desconectarse
+        if (puntajes[equipoNombre] !== undefined) {
+            delete puntajes[equipoNombre];
+        }
+        
         io.to(id).emit('usuarioSalio');
 
         // Si se sale un equipo en medio de la ronda y quedamos con menos de 2, regresamos al lobby
@@ -60,6 +66,7 @@ const eliminarParticipante = (id) => {
 
         console.log(`Equipo desconectado: ${equipoNombre}. Activos: ${participantes.length}`);
         io.emit('actualizarParticipantes', { participantes });
+        io.emit('actualizarPuntajes', puntajes);
     }
 };
 
