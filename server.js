@@ -152,16 +152,20 @@ io.on('connection', (socket) => {
 
     socket.on('siguienteRonda', () => {
         if (socket.id !== adminId) return; // Solo admin
+        if (participantes.length < 2) {
+            socket.emit('error', 'Se necesitan al menos 2 equipos para iniciar la ronda.');
+            return;
+        }
         
-        console.log('Siguiente ronda (manteniendo participantes, volviendo al lobby)...');
+        console.log('Iniciando siguiente ronda de inmediato...');
         resultadosRonda = [];
         if (timeoutRonda) {
             clearTimeout(timeoutRonda);
             timeoutRonda = null;
         }
-        estadoJuego = 'esperando_equipos';
+        estadoJuego = 'en_ronda';
         
-        io.emit('reiniciarRonda');
+        io.emit('rondaIniciada');
     });
 
     socket.on('salir', () => {
