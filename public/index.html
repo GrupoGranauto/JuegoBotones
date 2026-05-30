@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Juego en Tiempo Real</title>
-    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=8">
 </head>
+
 <body>
     <main class="container">
-        
+
         <img src="images/AUTO-INSIGHTS-09.png" alt="Logo" class="app-logo">
 
         <div id="globalScoreboard" class="scoreboard hidden">
@@ -41,7 +44,8 @@
                 </select>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Unirse</button>
             </form>
-            <button id="spectatorBtn" class="btn btn-secondary mt-2" style="width: 100%; border-style: dashed;">Entrar como Admin (Espectador)</button>
+            <button id="spectatorBtn" class="btn btn-secondary mt-2" style="width: 100%; border-style: dashed;">Entrar
+                como Admin (Espectador)</button>
             <div id="loginError" class="error-msg hidden"></div>
         </section>
 
@@ -53,7 +57,8 @@
             </div>
             <p class="mt-2" style="font-size: 1.2rem; font-weight: 600;">Partida en progreso...</p>
             <p style="color: var(--secondary-color);">Esperando al más rápido</p>
-            <button id="leaveSpectatorBtn" class="btn btn-secondary mt-2" style="width: 100%;">Salir del modo espectador</button>
+            <button id="leaveSpectatorBtn" class="btn btn-secondary mt-2" style="width: 100%;">Salir del modo
+                espectador</button>
         </section>
 
         <!-- Pantalla de Espera -->
@@ -78,10 +83,12 @@
         <section id="resultScreen" class="screen">
             <div class="winner-card">
                 <h2>🏆 Resultados</h2>
-                
+
                 <div id="firstPlace" class="podium-1st">
                     <h3 id="winnerName">-</h3>
-                    <h4 id="winnerTeam" style="color: var(--accent-color); margin-top: -10px; margin-bottom: 10px; font-size: 1.2rem;">-</h4>
+                    <h4 id="winnerTeam"
+                        style="color: var(--accent-color); margin-top: -10px; margin-bottom: 10px; font-size: 1.2rem;">-
+                    </h4>
                     <p>Tiempo de registro:</p>
                     <div class="time-display" id="winnerTime">-</div>
                 </div>
@@ -93,10 +100,10 @@
 
             <div id="adminControls" class="admin-controls hidden">
                 <div class="admin-header">
-                    <span class="admin-icon">⚙️</span>
+                    <span class="admin-icon"></span>
                     <h3>Panel de Control</h3>
                 </div>
-                
+
                 <div class="admin-teams">
                     <!-- Equipo 1 -->
                     <div class="admin-team team-red">
@@ -125,9 +132,11 @@
                 </div>
 
                 <div class="admin-actions mt-2">
-                    <button id="nextRoundBtn" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem; margin-bottom: 0.8rem;">▶️ Siguiente Ronda</button>
+                    <button id="nextRoundBtn" class="btn btn-primary"
+                        style="width: 100%; font-size: 1.1rem; padding: 1rem; margin-bottom: 0.8rem;">▶️ Siguiente
+                        Ronda</button>
                     <button class="btn-reset-scores" onclick="resetScores()">
-                        <span class="icon">🗑️</span> Reiniciar Puntajes
+                        <span class="icon"></span> Reiniciar Puntajes
                     </button>
                 </div>
             </div>
@@ -138,10 +147,10 @@
         </section>
 
         <div class="footer-credits">
-            Desarrollado a base de café por Miguel Borbón. <br>
-            (Todavía no es ingeniero, pero la fe es lo último que se pierde). 💻✨
+            Desarrollado a base de IA y ganas de perder el tiempo por Miguel Borbón. <br>
+            (Auxilio, ya no supe que mas agregar).
         </div>
-        
+
         <!-- Toast Notification (Errores globales o mensajes de "Ronda llena") -->
         <div id="toast" class="toast hidden">Mensaje</div>
     </main>
@@ -149,4 +158,5 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="app.js?v=8"></script>
 </body>
+
 </html>
