@@ -135,7 +135,7 @@ leaveBtn.addEventListener('click', () => {
         const wrapper = document.getElementById('adminImageWrapper');
         const btn = document.getElementById('toggleAdminImgBtn');
         if (wrapper) wrapper.classList.add('hidden');
-        if (btn) btn.innerHTML = '<span>🖼️</span> Mostrar Imagen';
+        if (btn) btn.innerHTML = '<span></span> Mostrar Imagen';
         showScreen('login');
     }
 });
@@ -148,7 +148,7 @@ leaveWaitingBtn.addEventListener('click', () => {
         const wrapper = document.getElementById('adminImageWrapper');
         const btn = document.getElementById('toggleAdminImgBtn');
         if (wrapper) wrapper.classList.add('hidden');
-        if (btn) btn.innerHTML = '<span>🖼️</span> Mostrar Imagen';
+        if (btn) btn.innerHTML = '<span></span> Mostrar Imagen';
         showScreen('login');
     }
 });
@@ -314,7 +314,7 @@ socket.on('usuarioSalio', () => {
         const wrapper = document.getElementById('adminImageWrapper');
         const btn = document.getElementById('toggleAdminImgBtn');
         if (wrapper) wrapper.classList.add('hidden');
-        if (btn) btn.innerHTML = '<span>🖼️</span> Mostrar Imagen';
+        if (btn) btn.innerHTML = '<span></span> Mostrar Imagen';
     }
 
     // Volver a inicio
