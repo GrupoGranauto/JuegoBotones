@@ -123,14 +123,17 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn-reset-scores" onclick="resetScores()">
-                    <span class="icon">🗑️</span> Reiniciar Puntajes
-                </button>
+
+                <div class="admin-actions mt-2">
+                    <button id="nextRoundBtn" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem; margin-bottom: 0.8rem;">▶️ Siguiente Ronda</button>
+                    <button class="btn-reset-scores" onclick="resetScores()">
+                        <span class="icon">🗑️</span> Reiniciar Puntajes
+                    </button>
+                </div>
             </div>
 
-            <div class="result-actions mt-2">
-                <button id="nextRoundBtn" class="btn btn-primary">Siguiente ronda</button>
-                <button id="leaveBtn" class="btn btn-secondary">Salir</button>
+            <div class="result-actions mt-2" style="width: 100%; display: flex; justify-content: center;">
+                <button id="leaveBtn" class="btn btn-secondary">Salir de la partida</button>
             </div>
         </section>
 

@@ -107,6 +107,7 @@ spectatorBtn.addEventListener('click', () => {
 socket.on('adminAceptado', () => {
     isSpectator = true;
     soyParticipante = false;
+    document.body.classList.add('admin-mode');
     showScreen('waiting');
 });
 
@@ -127,20 +128,20 @@ nextRoundBtn.addEventListener('click', () => {
 });
 
 leaveBtn.addEventListener('click', () => {
+    socket.emit('salir');
     if (isSpectator) {
         isSpectator = false;
+        document.body.classList.remove('admin-mode');
         showScreen('login');
-    } else {
-        socket.emit('salir');
     }
 });
 
 leaveWaitingBtn.addEventListener('click', () => {
+    socket.emit('salir');
     if (isSpectator) {
         isSpectator = false;
+        document.body.classList.remove('admin-mode');
         showScreen('login');
-    } else {
-        socket.emit('salir');
     }
 });
 
