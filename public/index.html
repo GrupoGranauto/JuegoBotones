@@ -12,6 +12,16 @@
 </head>
 
 <body>
+    <!-- Contenedor de Imagen Especial de Admin (Solo visible en admin-mode) -->
+    <div id="adminImageContainer" class="admin-image-container">
+        <button id="toggleAdminImgBtn" class="btn-toggle-img" onclick="toggleAdminImage()">
+            <span>🖼️</span> Mostrar Imagen
+        </button>
+        <div id="adminImageWrapper" class="admin-image-wrapper hidden">
+            <img src="images/Untitled (3).png" alt="Admin Special" class="admin-special-img">
+        </div>
+    </div>
+
     <main class="container">
 
         <img src="images/AUTO INSIGHTS-02.jpg" alt="Logo" class="app-logo">

@@ -132,6 +132,10 @@ leaveBtn.addEventListener('click', () => {
     if (isSpectator) {
         isSpectator = false;
         document.body.classList.remove('admin-mode');
+        const wrapper = document.getElementById('adminImageWrapper');
+        const btn = document.getElementById('toggleAdminImgBtn');
+        if (wrapper) wrapper.classList.add('hidden');
+        if (btn) btn.innerHTML = '<span>🖼️</span> Mostrar Imagen';
         showScreen('login');
     }
 });
@@ -141,6 +145,10 @@ leaveWaitingBtn.addEventListener('click', () => {
     if (isSpectator) {
         isSpectator = false;
         document.body.classList.remove('admin-mode');
+        const wrapper = document.getElementById('adminImageWrapper');
+        const btn = document.getElementById('toggleAdminImgBtn');
+        if (wrapper) wrapper.classList.add('hidden');
+        if (btn) btn.innerHTML = '<span>🖼️</span> Mostrar Imagen';
         showScreen('login');
     }
 });
@@ -197,6 +205,19 @@ window.removePoint = (equipo) => {
 };
 window.resetScores = () => {
     socket.emit('reiniciarPuntajes');
+};
+window.toggleAdminImage = () => {
+    const wrapper = document.getElementById('adminImageWrapper');
+    const btn = document.getElementById('toggleAdminImgBtn');
+    if (wrapper && btn) {
+        if (wrapper.classList.contains('hidden')) {
+            wrapper.classList.remove('hidden');
+            btn.innerHTML = '<span>❌</span> Ocultar Imagen';
+        } else {
+            wrapper.classList.add('hidden');
+            btn.innerHTML = '<span>🖼️</span> Mostrar Imagen';
+        }
+    }
 };
 
 socket.on('rondaIniciada', () => {
@@ -288,6 +309,14 @@ socket.on('usuarioSalio', () => {
     loginError.classList.add('hidden');
     gameButton.disabled = true;
     
+    // Reset admin image toggle if they are spectator
+    if (isSpectator) {
+        const wrapper = document.getElementById('adminImageWrapper');
+        const btn = document.getElementById('toggleAdminImgBtn');
+        if (wrapper) wrapper.classList.add('hidden');
+        if (btn) btn.innerHTML = '<span>🖼️</span> Mostrar Imagen';
+    }
+
     // Volver a inicio
     if (!isSpectator) {
         showScreen('login');
