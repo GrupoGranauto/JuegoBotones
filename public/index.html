@@ -27,33 +27,16 @@
         <img src="images/AUTO INSIGHTS-02.jpg" alt="Logo" class="app-logo">
 
         <div id="globalScoreboard" class="scoreboard hidden">
-            <div class="team-score score-1">
-                <span class="team-label">EQ 1</span>
-                <span id="score1" class="score-value">0</span>
-            </div>
-            <div class="team-score score-2">
-                <span class="team-label">EQ 2</span>
-                <span id="score2" class="score-value">0</span>
-            </div>
-            <div class="team-score score-3">
-                <span class="team-label">EQ 3</span>
-                <span id="score3" class="score-value">0</span>
-            </div>
+            <!-- Los marcadores de equipos se inyectarán dinámicamente desde JS -->
         </div>
 
         <!-- Pantalla de Login -->
         <section id="loginScreen" class="screen active">
-            <h1>Únete a la ronda</h1>
-            <p>Ingresa tu nombre para jugar</p>
+            <h1>Registra tu Equipo</h1>
+            <p>Ingresa el nombre de tu equipo para jugar</p>
             <form id="joinForm">
-                <input type="text" id="nameInput" placeholder="Tu nombre" autocomplete="off" required maxlength="15">
-                <select id="teamSelect" required class="team-select">
-                    <option value="" disabled selected>Selecciona tu equipo</option>
-                    <option value="1">Equipo 1</option>
-                    <option value="2">Equipo 2</option>
-                    <option value="3">Equipo 3</option>
-                </select>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Unirse</button>
+                <input type="text" id="nameInput" placeholder="Nombre de tu equipo" autocomplete="off" required maxlength="18">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Unirse a la Partida</button>
             </form>
             <button id="spectatorBtn" class="btn btn-secondary mt-2" style="width: 100%; border-style: dashed;">Entrar
                 como Admin (Espectador)</button>
@@ -77,14 +60,15 @@
 
         <!-- Pantalla de Espera -->
         <section id="waitingScreen" class="screen">
-            <h2>Esperando participantes...</h2>
+            <h2>Esperando Equipos...</h2>
             <div class="participants-info">
-                <p>Participantes conectados:</p>
-                <h3 id="participantCount">0/3</h3>
+                <p>Equipos en el lobby:</p>
+                <h3 id="participantCount">0 conectados</h3>
             </div>
             <ul id="participantsList" class="participants-list">
-                <!-- Nombres inyectados por JS -->
+                <!-- Nombres de equipos inyectados por JS -->
             </ul>
+            <button id="adminStartRoundBtn" class="btn btn-primary mt-2 hidden" onclick="startRound()" style="width: 100%;">Iniciar Ronda</button>
             <button id="adminResetScoresBtn" class="btn-reset-scores mt-2 hidden" onclick="resetScores()">
                 Reiniciar Puntajes
             </button>
@@ -121,31 +105,8 @@
                     <h3>Panel de Control</h3>
                 </div>
 
-                <div class="admin-teams">
-                    <!-- Equipo 1 -->
-                    <div class="admin-team team-red">
-                        <span class="team-name">Equipo 1</span>
-                        <div class="admin-btn-group">
-                            <button class="btn-score btn-minus" onclick="removePoint(1)">-1</button>
-                            <button class="btn-score btn-plus" onclick="addPoint(1)">+1</button>
-                        </div>
-                    </div>
-                    <!-- Equipo 2 -->
-                    <div class="admin-team team-blue">
-                        <span class="team-name">Equipo 2</span>
-                        <div class="admin-btn-group">
-                            <button class="btn-score btn-minus" onclick="removePoint(2)">-1</button>
-                            <button class="btn-score btn-plus" onclick="addPoint(2)">+1</button>
-                        </div>
-                    </div>
-                    <!-- Equipo 3 -->
-                    <div class="admin-team team-green">
-                        <span class="team-name">Equipo 3</span>
-                        <div class="admin-btn-group">
-                            <button class="btn-score btn-minus" onclick="removePoint(3)">-1</button>
-                            <button class="btn-score btn-plus" onclick="addPoint(3)">+1</button>
-                        </div>
-                    </div>
+                <div id="adminTeamsList" class="admin-teams">
+                    <!-- Las tarjetas de administración de equipos se inyectarán dinámicamente -->
                 </div>
 
                 <div class="admin-actions mt-2">

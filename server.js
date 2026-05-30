@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -14,11 +13,12 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Estado en memoria
-const maxParticipantes = 3;
-let participantes = []; // { id, nombre, equipo }
-
-let resultadosRonda = []; // [{ id, nombre, equipo, timestamp }]
+let participantes = []; // { id, equipo }
+let resultadosRonda = []; // [{ id, equipo, timestamp }]
 let timeoutRonda = null;
+let estadoJuego = 'esperando_equipos'; // 'esperando_equipos', 'en_ronda', 'resultados'
+let adminId = null;
+let puntajes = {}; // { [nombreEquipo]: puntaje }
 
 const finalizarRonda = () => {
     if (timeoutRonda) {
@@ -26,16 +26,12 @@ const finalizarRonda = () => {
         timeoutRonda = null;
     }
     
-    // Asegurarse de ordenar por tiempo (el primero en el array es el 1er lugar)
+    // Ordenar por tiempo (el primero es el 1er lugar)
     resultadosRonda.sort((a, b) => a.timestamp - b.timestamp);
     
+    estadoJuego = 'resultados';
     io.emit('juegoTerminado', resultadosRonda);
 };
-
-let adminId = null;
-let puntajes = { 1: 0, 2: 0, 3: 0 };
-
-// Ya no se usan imágenes de ruleta
 
 // Limpiar la lista de desconectados
 const eliminarParticipante = (id) => {
@@ -47,18 +43,23 @@ const eliminarParticipante = (id) => {
 
     const idx = participantes.findIndex(p => p.id === id);
     if (idx !== -1) {
+        const equipoNombre = participantes[idx].equipo;
         participantes.splice(idx, 1);
         io.to(id).emit('usuarioSalio');
-        if (resultadosRonda.length > 0) {
+
+        // Si se sale un equipo en medio de la ronda y quedamos con menos de 2, regresamos al lobby
+        if (participantes.length < 2 && estadoJuego !== 'esperando_equipos') {
             resultadosRonda = [];
             if (timeoutRonda) {
                 clearTimeout(timeoutRonda);
                 timeoutRonda = null;
             }
+            estadoJuego = 'esperando_equipos';
             io.emit('reiniciarRonda');
         }
 
-        io.emit('actualizarParticipantes', { participantes, maxParticipantes });
+        console.log(`Equipo desconectado: ${equipoNombre}. Activos: ${participantes.length}`);
+        io.emit('actualizarParticipantes', { participantes });
     }
 };
 
@@ -66,60 +67,67 @@ io.on('connection', (socket) => {
     console.log(`Usuario conectado: ${socket.id}`);
 
     // Enviar estado actual al conectarse (por si recarga la página)
-    socket.emit('estadoActual', { participantes, maxParticipantes, resultadosRonda });
+    socket.emit('estadoActual', { participantes, estadoJuego, resultadosRonda });
     socket.emit('actualizarPuntajes', puntajes);
 
     // Unirse a la ronda
-    socket.on('unirse', ({ nombre, equipo }) => {
-        if (participantes.length >= maxParticipantes) {
-            socket.emit('error', 'La sala está llena.');
+    socket.on('unirse', ({ equipo }) => {
+        if (estadoJuego === 'en_ronda') {
+            socket.emit('error', 'La ronda ya ha iniciado. Por favor espera a que termine.');
             return;
         }
-        if (!nombre || nombre.trim() === '') {
-            socket.emit('error', 'El nombre no puede estar vacío.');
+        if (!equipo || equipo.trim() === '') {
+            socket.emit('error', 'El nombre del equipo no puede estar vacío.');
             return;
         }
-        if (!equipo || !['1', '2', '3'].includes(String(equipo))) {
-            socket.emit('error', 'Equipo inválido.');
-            return;
-        }
-        if (participantes.some(p => p.nombre === nombre)) {
-            socket.emit('error', 'El nombre ya está en uso en esta ronda.');
-            return;
-        }
-        if (participantes.some(p => p.equipo === String(equipo))) {
-            socket.emit('error', `El Equipo ${equipo} ya está ocupado en esta ronda.`);
+        
+        const nombreEquipo = equipo.trim();
+        if (participantes.some(p => p.equipo.toLowerCase() === nombreEquipo.toLowerCase())) {
+            socket.emit('error', 'Ese nombre de equipo ya está en uso en esta ronda.');
             return;
         }
 
         participantes.push({
             id: socket.id,
-            nombre: nombre.trim(),
-            equipo: String(equipo)
+            equipo: nombreEquipo
         });
 
-        console.log(`Usuario unido: ${nombre} (Equipo ${equipo}) - Total: ${participantes.length}`);
-        
-        io.emit('actualizarParticipantes', { participantes, maxParticipantes });
-        socket.emit('actualizarPuntajes', puntajes);
-
-        // Si se llenó la sala, iniciar la ronda automáticamente
-        if (participantes.length === maxParticipantes) {
-            console.log('Ronda iniciada');
-            io.emit('rondaIniciada');
+        // Inicializar puntaje si es un equipo nuevo
+        if (puntajes[nombreEquipo] === undefined) {
+            puntajes[nombreEquipo] = 0;
         }
+
+        console.log(`Equipo unido: ${nombreEquipo} - Total: ${participantes.length}`);
+        
+        io.emit('actualizarParticipantes', { participantes });
+        io.emit('actualizarPuntajes', puntajes);
+    });
+
+    socket.on('iniciarRonda', () => {
+        if (socket.id !== adminId) return; // Solo el admin puede iniciar la ronda
+        if (participantes.length < 2) {
+            socket.emit('error', 'Se necesitan al menos 2 equipos para iniciar la ronda.');
+            return;
+        }
+
+        console.log('Ronda iniciada manualmente por el administrador.');
+        estadoJuego = 'en_ronda';
+        resultadosRonda = [];
+        if (timeoutRonda) {
+            clearTimeout(timeoutRonda);
+            timeoutRonda = null;
+        }
+
+        io.emit('rondaIniciada');
     });
 
     socket.on('presionarBoton', () => {
         // Verificar si el jugador es parte de la ronda
         const jugador = participantes.find(p => p.id === socket.id);
-        if (!jugador) return; // Ignorar si no está en la lista
+        if (!jugador) return;
 
-        // Solo se acepta si la ronda ya tiene los 3
-        if (participantes.length < maxParticipantes) return;
-
-        // Validar si la ronda ya cerró
-        if (timeoutRonda === null && resultadosRonda.length >= maxParticipantes) return;
+        // Solo se acepta si estamos en ronda activa
+        if (estadoJuego !== 'en_ronda') return;
 
         // Validar si ya presionó
         if (resultadosRonda.some(r => r.id === socket.id)) return;
@@ -127,31 +135,31 @@ io.on('connection', (socket) => {
         const ts = new Date();
         resultadosRonda.push({
             id: socket.id,
-            nombre: jugador.nombre,
             equipo: jugador.equipo,
             timestamp: ts
         });
 
-        console.log(`Boton presionado por: ${jugador.nombre} (Eq ${jugador.equipo}) a las ${ts.toISOString()}`);
+        console.log(`Boton presionado por: ${jugador.equipo} a las ${ts.toISOString()}`);
 
         if (resultadosRonda.length === 1) {
             // Primer jugador en presionar: Iniciar ventana de 3 segundos
             timeoutRonda = setTimeout(finalizarRonda, 3000);
-        } else if (resultadosRonda.length === maxParticipantes) {
-            // Ya presionaron todos, finalizar de inmediato
+        } else if (resultadosRonda.length === participantes.length) {
+            // Ya presionaron todos los equipos activos, finalizar de inmediato
             finalizarRonda();
         }
     });
 
     socket.on('siguienteRonda', () => {
-        if (socket.id !== adminId) return; // SOLO ADMIN PUEDE REINICIAR LA RONDA
+        if (socket.id !== adminId) return; // Solo admin
         
-        console.log('Siguiente ronda (manteniendo participantes)...');
+        console.log('Siguiente ronda (manteniendo participantes, volviendo al lobby)...');
         resultadosRonda = [];
         if (timeoutRonda) {
             clearTimeout(timeoutRonda);
             timeoutRonda = null;
         }
+        estadoJuego = 'esperando_equipos';
         
         io.emit('reiniciarRonda');
     });
@@ -171,13 +179,12 @@ io.on('connection', (socket) => {
         console.log(`Admin unido: ${socket.id}`);
         socket.emit('adminAceptado');
         socket.emit('actualizarPuntajes', puntajes);
+        socket.emit('actualizarParticipantes', { participantes });
         
         // Sincronizar al admin con el estado actual del juego
-        if (resultadosRonda.length > 0) {
-            // Si la ronda ya terminó, mandarlo a los resultados para que pueda sumar puntos
+        if (estadoJuego === 'resultados' && resultadosRonda.length > 0) {
             socket.emit('juegoTerminado', resultadosRonda);
-        } else if (participantes.length === maxParticipantes) {
-            // Si ya están los 3 pero no han terminado, mandarlo directo a la pantalla de espectador
+        } else if (estadoJuego === 'en_ronda') {
             socket.emit('rondaIniciada');
         }
     });
@@ -186,13 +193,20 @@ io.on('connection', (socket) => {
         if (socket.id !== adminId) return;
         if (puntajes[equipo] !== undefined) {
             puntajes[equipo] += delta;
+            // Evitar puntajes negativos
+            if (puntajes[equipo] < 0) puntajes[equipo] = 0;
             io.emit('actualizarPuntajes', puntajes);
         }
     });
 
     socket.on('reiniciarPuntajes', () => {
         if (socket.id !== adminId) return;
-        puntajes = { 1: 0, 2: 0, 3: 0 };
+        
+        puntajes = {};
+        participantes.forEach(p => {
+            puntajes[p.equipo] = 0;
+        });
+        
         io.emit('actualizarPuntajes', puntajes);
     });
 

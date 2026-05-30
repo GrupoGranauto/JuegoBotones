@@ -12,19 +12,16 @@ const screens = {
 // Formularios e inputs
 const joinForm = document.getElementById('joinForm');
 const nameInput = document.getElementById('nameInput');
-const teamSelect = document.getElementById('teamSelect');
 const loginError = document.getElementById('loginError');
 const spectatorBtn = document.getElementById('spectatorBtn');
 const leaveSpectatorBtn = document.getElementById('leaveSpectatorBtn');
 
 const globalScoreboard = document.getElementById('globalScoreboard');
-const score1 = document.getElementById('score1');
-const score2 = document.getElementById('score2');
-const score3 = document.getElementById('score3');
 
 // Sala de espera
 const participantCount = document.getElementById('participantCount');
 const participantsList = document.getElementById('participantsList');
+const adminStartRoundBtn = document.getElementById('adminStartRoundBtn');
 
 // Juego
 const gameButton = document.getElementById('gameButton');
@@ -36,6 +33,7 @@ const winnerName = document.getElementById('winnerName');
 const winnerTeam = document.getElementById('winnerTeam');
 const winnerTime = document.getElementById('winnerTime');
 const adminControls = document.getElementById('adminControls');
+const adminTeamsList = document.getElementById('adminTeamsList');
 const nextRoundBtn = document.getElementById('nextRoundBtn');
 const leaveBtn = document.getElementById('leaveBtn');
 const leaveWaitingBtn = document.getElementById('leaveWaitingBtn');
@@ -88,13 +86,12 @@ const formatTime = (isoString) => {
 // Eventos de usuario
 joinForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const name = nameInput.value.trim();
-    const equipo = teamSelect.value;
-    if (name && equipo) {
+    const teamName = nameInput.value.trim();
+    if (teamName) {
         isSpectator = false;
-        socket.emit('unirse', { nombre: name, equipo });
+        socket.emit('unirse', { equipo: teamName });
     } else {
-        loginError.textContent = "Debes ingresar tu nombre y seleccionar un equipo.";
+        loginError.textContent = "Debes ingresar el nombre de tu equipo.";
         loginError.classList.remove('hidden');
     }
 });
@@ -113,6 +110,7 @@ socket.on('adminAceptado', () => {
 
 leaveSpectatorBtn.addEventListener('click', () => {
     isSpectator = false;
+    document.body.classList.remove('admin-mode');
     showScreen('login');
 });
 
@@ -164,7 +162,7 @@ socket.on('rondaLlena', (msg) => {
     showToast(msg, 5000);
 });
 
-socket.on('actualizarParticipantes', ({ participantes, maxParticipantes }) => {
+socket.on('actualizarParticipantes', ({ participantes }) => {
     soyParticipante = participantes.some(p => p.id === socket.id);
     
     // Si estábamos en login, pasamos a espera (si nos unimos exitosamente)
@@ -172,29 +170,131 @@ socket.on('actualizarParticipantes', ({ participantes, maxParticipantes }) => {
         showScreen('waiting');
     }
 
-    // Si alguien salió y quedamos menos de 3, volver a la sala de espera
-    if (participantes.length < maxParticipantes && (soyParticipante || isSpectator) && !screens.waiting.classList.contains('active')) {
+    // Si alguien salió y quedamos menos de 2 en medio de una ronda, el servidor nos regresará
+    if (participantes.length < 2 && (soyParticipante || isSpectator) && !screens.waiting.classList.contains('active') && !screens.login.classList.contains('active')) {
         showScreen('waiting');
-        if (soyParticipante) showToast("Un jugador ha salido. Esperando...");
+        if (soyParticipante) showToast("Se requieren mínimo 2 equipos conectados. Esperando...");
     }
 
-    // Actualizar UI
-    participantCount.textContent = `${participantes.length}/${maxParticipantes}`;
+    // Actualizar contador descriptivo
+    participantCount.textContent = `${participantes.length} ${participantes.length === 1 ? 'equipo conectado' : 'equipos conectados'}`;
     
     participantsList.innerHTML = '';
     participantes.forEach(p => {
         const li = document.createElement('li');
-        li.textContent = `${p.nombre} (Eq. ${p.equipo})`;
+        li.textContent = p.equipo;
         if (p.id === socket.id) li.textContent += ' (Tú)';
         participantsList.appendChild(li);
     });
+
+    // Control de visibilidad del botón de Iniciar Ronda para Admin
+    if (isSpectator) {
+        adminStartRoundBtn.classList.remove('hidden');
+        if (participantes.length >= 2) {
+            adminStartRoundBtn.removeAttribute('disabled');
+            adminStartRoundBtn.style.opacity = '1';
+            adminStartRoundBtn.textContent = 'Iniciar Ronda';
+        } else {
+            adminStartRoundBtn.setAttribute('disabled', 'true');
+            adminStartRoundBtn.style.opacity = '0.5';
+            adminStartRoundBtn.textContent = 'Esperando Equipos (Mínimo 2)';
+        }
+    } else {
+        adminStartRoundBtn.classList.add('hidden');
+    }
 });
 
+// Función auxiliar para renderizar los controles de administración de puntajes
+const actualizarControlesAdmin = (puntajes) => {
+    adminTeamsList.innerHTML = '';
+    const keys = Object.keys(puntajes);
+    
+    if (keys.length === 0) {
+        adminTeamsList.innerHTML = '<p style="color: var(--secondary-color); font-size: 0.95rem;">No hay equipos registrados.</p>';
+        return;
+    }
+
+    keys.forEach((equipo) => {
+        const teamRow = document.createElement('div');
+        teamRow.className = 'admin-team';
+        
+        const teamInfo = document.createElement('div');
+        teamInfo.className = 'admin-team-info';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'admin-team-name';
+        nameSpan.textContent = equipo;
+        
+        const scoreSpan = document.createElement('span');
+        scoreSpan.className = 'admin-team-score';
+        scoreSpan.textContent = `Puntaje: ${puntajes[equipo]}`;
+        
+        teamInfo.appendChild(nameSpan);
+        teamInfo.appendChild(scoreSpan);
+        
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'admin-btn-group';
+        
+        const minusBtn = document.createElement('button');
+        minusBtn.className = 'btn-score btn-minus';
+        minusBtn.textContent = '-1';
+        minusBtn.onclick = () => removePoint(equipo);
+        
+        const plusBtn = document.createElement('button');
+        plusBtn.className = 'btn-score btn-plus';
+        plusBtn.textContent = '+1';
+        plusBtn.style.background = 'var(--primary-color)';
+        plusBtn.onclick = () => addPoint(equipo);
+        
+        btnGroup.appendChild(minusBtn);
+        btnGroup.appendChild(plusBtn);
+        
+        teamRow.appendChild(teamInfo);
+        teamRow.appendChild(btnGroup);
+        
+        adminTeamsList.appendChild(teamRow);
+    });
+};
+
 socket.on('actualizarPuntajes', (puntajes) => {
-    globalScoreboard.classList.remove('hidden');
-    score1.textContent = puntajes[1];
-    score2.textContent = puntajes[2];
-    score3.textContent = puntajes[3];
+    if (!screens.login.classList.contains('active')) {
+        globalScoreboard.classList.remove('hidden');
+    }
+    
+    // Renderizado dinámico del marcador superior
+    globalScoreboard.innerHTML = '';
+    const keys = Object.keys(puntajes);
+    
+    if (keys.length === 0) {
+        globalScoreboard.innerHTML = '<p style="color: var(--secondary-color); margin: 0; font-size: 0.95rem;">Sin puntuaciones</p>';
+    } else {
+        keys.forEach((equipo, index) => {
+            const scoreCard = document.createElement('div');
+            scoreCard.className = 'team-score';
+            
+            // Asignar un color del array de colores de manera cíclica
+            const colors = ['#ef4444', '#3b82f6', '#22c55e', '#a855f7', '#f59e0b', '#06b6d4'];
+            const colorClass = colors[index % colors.length];
+            
+            const label = document.createElement('span');
+            label.className = 'team-label';
+            label.textContent = equipo;
+            
+            const val = document.createElement('span');
+            val.className = 'score-value';
+            val.textContent = puntajes[equipo];
+            val.style.color = colorClass;
+            
+            scoreCard.appendChild(label);
+            scoreCard.appendChild(val);
+            globalScoreboard.appendChild(scoreCard);
+        });
+    }
+
+    // Actualizar controles de admin si es espectador
+    if (isSpectator) {
+        actualizarControlesAdmin(puntajes);
+    }
 });
 
 window.addPoint = (equipo) => {
@@ -205,6 +305,9 @@ window.removePoint = (equipo) => {
 };
 window.resetScores = () => {
     socket.emit('reiniciarPuntajes');
+};
+window.startRound = () => {
+    socket.emit('iniciarRonda');
 };
 window.toggleAdminImage = () => {
     const wrapper = document.getElementById('adminImageWrapper');
@@ -236,8 +339,8 @@ socket.on('juegoTerminado', (resultadosRonda) => {
     if (!resultadosRonda || resultadosRonda.length === 0) return;
     
     const ganador = resultadosRonda[0];
-    winnerName.textContent = ganador.nombre;
-    winnerTeam.textContent = `Equipo ${ganador.equipo}`;
+    winnerName.textContent = ganador.equipo;
+    winnerTeam.textContent = '🏆 1er Lugar 🏆';
     winnerTime.textContent = formatTime(ganador.timestamp);
     
     // Animación del ganador
@@ -260,7 +363,7 @@ socket.on('juegoTerminado', (resultadosRonda) => {
             
             const name = document.createElement('span');
             name.className = 'place-name';
-            name.textContent = `${res.nombre} (Eq. ${res.equipo})`;
+            name.textContent = res.equipo;
             
             const time = document.createElement('span');
             time.className = 'place-time';
@@ -274,7 +377,7 @@ socket.on('juegoTerminado', (resultadosRonda) => {
         }
     }
     
-    // Deshabilitar botón para que no sigan presionando
+    // Deshabilitar botón
     gameButton.disabled = true;
     
     if (isSpectator) {
@@ -293,19 +396,18 @@ socket.on('reiniciarRonda', () => {
     gameButton.textContent = 'PRESIONA';
     gameButton.style.fontSize = '2.2rem';
     
-    // Volver a la pantalla de juego solo si somos participantes de la ronda
-    if (soyParticipante) {
-        gameButton.disabled = false;
-        showScreen('game');
-    } else if (isSpectator) {
-        showScreen('spectator');
+    // Al reiniciar la ronda, regresamos todos al lobby (sala de espera) para iniciar ordenadamente
+    if (soyParticipante || isSpectator) {
+        showScreen('waiting');
+        if (soyParticipante) {
+            showToast("Preparando siguiente ronda... Espera al administrador.");
+        }
     }
 });
 
 socket.on('usuarioSalio', () => {
     // Limpiar estado local
     nameInput.value = '';
-    teamSelect.value = '';
     loginError.classList.add('hidden');
     gameButton.disabled = true;
     
@@ -324,13 +426,31 @@ socket.on('usuarioSalio', () => {
 });
 
 // Restaurar estado si se recarga la página
-socket.on('estadoActual', ({ participantes, maxParticipantes, resultadosRonda }) => {
-    if (resultadosRonda && resultadosRonda.length > 0) {
-        showScreen('login');
-    } else if (participantes.length === maxParticipantes) {
-        showScreen('login');
-        showToast("Hay una ronda en curso, espera a que termine.");
+socket.on('estadoActual', ({ participantes, estadoJuego, resultadosRonda }) => {
+    soyParticipante = participantes.some(p => p.id === socket.id);
+    
+    if (estadoJuego === 'resultados' && resultadosRonda && resultadosRonda.length > 0) {
+        if (soyParticipante || isSpectator) {
+            // Se le asignará a los resultados automáticamente por el evento del servidor
+        } else {
+            showScreen('login');
+        }
+    } else if (estadoJuego === 'en_ronda') {
+        if (soyParticipante) {
+            showScreen('game');
+        } else if (isSpectator) {
+            showScreen('spectator');
+        } else {
+            showScreen('login');
+            showToast("Ronda en curso, espera a que termine.");
+        }
     } else {
-        showScreen('login');
+        if (soyParticipante) {
+            showScreen('waiting');
+        } else if (isSpectator) {
+            showScreen('waiting');
+        } else {
+            showScreen('login');
+        }
     }
 });
