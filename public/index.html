@@ -57,6 +57,9 @@
             </div>
             <p class="mt-2" style="font-size: 1.2rem; font-weight: 600;">Partida en progreso...</p>
             <p style="color: var(--secondary-color);">Esperando al más rápido</p>
+            <button id="adminResetScoresBtnSpectator" class="btn-reset-scores mt-2 hidden" onclick="resetScores()">
+                🔄 Reiniciar Puntajes
+            </button>
             <button id="leaveSpectatorBtn" class="btn btn-secondary mt-2" style="width: 100%;">Salir del modo
                 espectador</button>
         </section>
@@ -71,6 +74,9 @@
             <ul id="participantsList" class="participants-list">
                 <!-- Nombres inyectados por JS -->
             </ul>
+            <button id="adminResetScoresBtn" class="btn-reset-scores mt-2 hidden" onclick="resetScores()">
+                🔄 Reiniciar Puntajes
+            </button>
             <button id="leaveWaitingBtn" class="btn btn-secondary mt-2" style="width: 100%;">Salir</button>
         </section>
 

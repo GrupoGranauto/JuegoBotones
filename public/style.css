@@ -570,6 +570,12 @@ input:focus {
     border-color: rgba(239, 68, 68, 0.6);
 }
 
+body.admin-mode #adminResetScoresBtn,
+body.admin-mode #adminResetScoresBtnSpectator {
+    display: flex !important;
+}
+
+
 /* Errores y Toast */
 .error-msg {
     color: var(--error-color);
