@@ -26,12 +26,11 @@ body {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    min-height: 100vh;
-    padding: 2rem 1rem;
+    min-height: 100dvh; /* Soporte para la barra de Safari iOS */
+    padding: 2rem 1rem 4rem 1rem; /* Más padding inferior */
     overflow-y: auto;
     overflow-x: hidden;
 }
-
 
 .container {
     width: 100%;
@@ -42,6 +41,19 @@ body {
     align-items: center;
     position: relative;
     transition: max-width 0.3s ease;
+    min-height: 85vh;
+}
+
+.footer-credits {
+    margin-top: auto;
+    padding-top: 3rem;
+    padding-bottom: 1rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    line-height: 1.5;
+    width: 100%;
+    font-weight: 500;
 }
 
 .app-logo {
